@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Lucky Spin Casino 🎰</title>
+<link href="https://fonts.googleapis.com/css2?family=Boogaloo&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #FFD700;
+    --gold2: #FFA500;
+    --red: #FF2D55;
+    --purple: #7B2FBE;
+    --dark: #0D0D1A;
+    --card: #1A1A2E;
+    --card2: #16213E;
+    --green: #00E676;
+    --blue: #00B0FF;
+    --white: #F0F0FF;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--dark);
+    color: var(--white);
+    min-height: 100vh;
+    overflow-x: hidden;
+    background-image:
+      radial-gradient(circle at 20% 20%, rgba(123,47,190,0.3) 0%, transparent 50%),
+      radial-gradient(circle at 80% 80%, rgba(255,45,85,0.2) 0%, transparent 50%);
+  }
+
+  /* ===== STARS BG ===== */
+  .stars {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none; z-index: 0; overflow: hidden;
+  }
+  .star {
+    position: absolute; border-radius: 50%;
+    background: white; animation: twinkle 3s infinite alternate;
+  }
+
+  @keyframes twinkle { from { opacity: 0.1; } to { opacity: 0.8; } }
+
+  /* ===== SCREENS ===== */
+  .screen {
+    display: none; position: relative; z-index: 10;
+    min-height: 100vh; padding: 20px;
+    flex-direction: column; align-items: center; justify-content: center;
+  }
+  .screen.active { display: flex; }
+
+  /* ===== LOGO ===== */
+  .logo {
+    font-family: 'Boogaloo', cursive;
+    font-size: 2.8rem;
+    background: linear-gradient(135deg, var(--gold), var(--gold2), var(--red));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    text-shadow: none;
+    filter: drop-shadow(0 0 20px rgba(255,215,0,0.5));
+    margin-bottom: 8px;
+    animation: pulse-logo 2s infinite;
+  }
+  @keyframes pulse-logo {
+    0%, 100% { filter: drop-shadow(0 0 20px rgba(255,215,0,0.5)); }
+    50% { filter: drop-shadow(0 0 35px rgba(255,165,0,0.9)); }
+  }
+  .tagline { font-size: 0.9rem; color: var(--gold); letter-spacing: 3px; margin-bottom: 30px; text-transform: uppercase; }
+
+  /* ===== CARD ===== */
+  .card {
+    background: var(--card);
+    border: 1px solid rgba(255,215,0,0.2);
+    border-radius: 20px;
+    padding: 28px 24px;
+    width: 100%; max-width: 380px;
+    box-shadow: 0 0 40px rgba(123,47,190,0.3), inset 0 1px 0 rgba(255,255,255,0.05);
+  }
+
+  .card h2 {
+    font-size: 1.3rem; font-weight: 900;
+    color: var(--gold); margin-bottom: 20px; text-align: center;
+  }
+
+  /* ===== INPUTS ===== */
+  .input-group { margin-bottom: 16px; }
+  .input-group label { font-size: 0.82rem; color: rgba(255,255,255,0.6); margin-bottom: 6px; display: block; letter-spacing: 1px; text-transform: uppercase; }
+  .input-group input {
+    width: 100%; padding: 13px 16px;
+    background: rgba(255,255,255,0.06);
+    border: 1.5px solid rgba(255,215,0,0.2);
+    border-radius: 12px; color: white;
+    font-size: 1rem; font-family: 'Nunito', sans-serif;
+    outline: none; transition: all 0.3s;
+  }
+  .input-group input:focus {
+    border-color: var(--gold);
+    background: rgba(255,215,0,0.05);
+    box-shadow: 0 0 15px rgba(255,215,0,0.15);
+  }
+
+  /* ===== BUTTONS ===== */
+  .btn {
+    width: 100%; padding: 15px;
+    border: none; border-radius: 14px;
+    font-size: 1.05rem; font-weight: 900;
+    font-family: 'Nunito', sans-serif;
+    cursor: pointer; transition: all 0.2s;
+    letter-spacing: 1px; text-transform: uppercase;
+  }
+  .btn:active { transform: scale(0.97); }
+
+  .btn-gold {
+    background: linear-gradient(135deg, #FFD700, #FFA500);
+    color: #1A1A2E;
+    box-shadow: 0 4px 20px rgba(255,165,0,0.4);
+  }
+  .btn-gold:hover { box-shadow: 0 4px 30px rgba(255,165,0,0.7); }
+
+  .btn-red {
+    background: linear-gradient(135deg, #FF2D55, #C0392B);
+    color: white;
+    box-shadow: 0 4px 20px rgba(255,45,85,0.4);
+    margin-top: 10px;
+  }
+
+  .btn-green {
+    background: linear-gradient(135deg, #00E676, #00BFA5);
+    color: #1A1A2E;
+    box-shadow: 0 4px 20px rgba(0,230,118,0.4);
+  }
+
+  .btn-outline {
+    background: transparent;
+    border: 2px solid var(--gold);
+    color: var(--gold);
+    margin-top: 10px;
+  }
+
+  .link-text {
+    text-align: center; margin-top: 16px;
+    font-size: 0.88rem; color: rgba(255,255,255,0.5);
+  }
+  .link-text span { color: var(--gold); cursor: pointer; font-weight: 700; }
+  .link-text span:hover { text-decoration: underline; }
+
+  /* ===== TOP BAR ===== */
+  .topbar {
+    position: fixed; top: 0; left: 0; right: 0;
+    padding: 12px 16px;
+    background: rgba(13,13,26,0.95);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255,215,0,0.15);
+    display: flex; justify-content: space-between; align-items: center;
+    z-index: 100;
+  }
+  .topbar-logo { font-family: 'Boogaloo', cursive; font-size: 1.4rem; color: var(--gold); }
+  .coins-display {
+    display: flex; align-items: center; gap: 8px;
+    background: rgba(255,215,0,0.1);
+    border: 1px solid rgba(255,215,0,0.3);
+    border-radius: 20px; padding: 6px 14px;
+  }
+  .coins-icon { font-size: 1.1rem; }
+  .coins-value { font-weight: 900; color: var(--gold); font-size: 1rem; }
+  .logout-btn {
+    background: rgba(255,45,85,0.2);
+    border: 1px solid rgba(255,45,85,0.4);
+    color: var(--red); border-radius: 10px;
+    padding: 6px 12px; cursor: pointer; font-size: 0.8rem;
+    font-family: 'Nunito', sans-serif; font-weight: 700;
+  }
+
+  /* ===== GAME SCREEN ===== */
+  #gameScreen { padding-top: 80px; justify-content: flex-start; }
+  .game-content { width: 100%; max-width: 420px; margin: 0 auto; }
+
+  /* ===== TABS ===== */
+  .tabs {
+    display: flex; gap: 8px; margin-bottom: 20px;
+    background: var(--card2);
+    border-radius: 14px; padding: 5px;
+  }
+  .tab {
+    flex: 1; padding: 10px; border: none;
+    background: transparent; color: rgba(255,255,255,0.5);
+    border-radius: 10px; font-family: 'Nunito', sans-serif;
+    font-size: 0.88rem; font-weight: 700; cursor: pointer;
+    transition: all 0.25s; text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .tab.active {
+    background: linear-gradient(135deg, var(--purple), var(--red));
+    color: white;
+    box-shadow: 0 2px 10px rgba(123,47,190,0.4);
+  }
+
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* ===== SPIN WHEEL ===== */
+  .wheel-container {
+    display: flex; flex-direction: column; align-items: center;
+    padding: 10px 0 20px;
+  }
+
+  .wheel-outer {
+    position: relative; margin-bottom: 20px;
+  }
+
+  .wheel-pointer {
+    position: absolute; top: -18px; left: 50%;
+    transform: translateX(-50%);
+    font-size: 2rem; z-index: 10;
+    filter: drop-shadow(0 0 8px rgba(255,215,0,0.8));
+    animation: pointer-bounce 1s infinite;
+  }
+  @keyframes pointer-bounce {
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    50% { transform: translateX(-50%) translateY(-4px); }
+  }
+
+  #spinCanvas {
+    border-radius: 50%;
+    box-shadow:
+      0 0 0 6px rgba(255,215,0,0.3),
+      0 0 0 10px rgba(255,165,0,0.15),
+      0 0 40px rgba(255,165,0,0.4),
+      0 0 80px rgba(123,47,190,0.3);
+    cursor: pointer;
+  }
+
+  .center-circle {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 50px; height: 50px;
+    background: radial-gradient(circle, #FFD700, #FF8C00);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem;
+    box-shadow: 0 0 20px rgba(255,165,0,0.8);
+    pointer-events: none;
+    z-index: 5;
+  }
+
+  .spin-cost {
+    font-size: 0.85rem; color: rgba(255,255,255,0.6);
+    margin-bottom: 12px; text-align: center;
+  }
+  .spin-cost strong { color: var(--gold); }
+
+  #spinBtn {
+    font-size: 1.2rem; padding: 16px;
+    background: linear-gradient(135deg, #FFD700, #FF6B00, #FF2D55);
+    background-size: 200% 200%;
+    animation: gradient-shift 2s ease infinite;
+    color: white; border: none; border-radius: 16px;
+    width: 100%; max-width: 280px;
+    font-family: 'Boogaloo', cursive;
+    font-size: 1.4rem; letter-spacing: 2px;
+    cursor: pointer;
+    box-shadow: 0 4px 25px rgba(255,100,0,0.5);
+    transition: transform 0.2s, box-shadow 0.2s;
+    text-transform: uppercase;
+  }
+  #spinBtn:active { transform: scale(0.96); }
+  #spinBtn:disabled {
+    opacity: 0.6; cursor: not-allowed; animation: none;
+    background: #444;
+  }
+  @keyframes gradient-shift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  /* ===== FREE SPINS BADGE ===== */
+  .free-spins-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: linear-gradient(135deg, rgba(0,230,118,0.2), rgba(0,176,255,0.2));
+    border: 1px solid rgba(0,230,118,0.4);
+    border-radius: 20px; padding: 6px 14px;
+    font-size: 0.85rem; color: var(--green);
+    font-weight: 700; margin-bottom: 10px;
+  }
+
+  /* ===== RESULT MODAL ===== */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.8); backdrop-filter: blur(6px);
+    z-index: 200; align-items: center; justify-content: center;
+  }
+  .modal-overlay.active { display: flex; }
+
+  .modal {
+    background: linear-gradient(135deg, var(--card), #1f1040);
+    border: 2px solid rgba(255,215,0,0.3);
+    border-radius: 24px; padding: 32px 28px;
+    text-align: center; max-width: 340px; width: 90%;
+    animation: modal-pop 0.4s cubic-bezier(0.34,1.56,0.64,1);
+    position: relative; overflow: hidden;
+  }
+  @keyframes modal-pop {
+    from { transform: scale(0.5) rotate(-5deg); opacity: 0; }
+    to { transform: scale(1) rotate(0); opacity: 1; }
+  }
+  .modal-emoji { font-size: 4rem; margin-bottom: 10px; display: block; }
+  .modal-title { font-family: 'Boogaloo', cursive; font-size: 2rem; color: var(--gold); margin-bottom: 8px; }
+  .modal-prize { font-size: 1.1rem; color: white; margin-bottom: 20px; line-height: 1.5; }
+  .modal-prize strong { color: var(--green); font-size: 1.4rem; }
+
+  .confetti-piece {
+    position: absolute; width: 8px; height: 8px;
+    border-radius: 2px; animation: confetti-fall 1.5s ease-out forwards;
+  }
+  @keyframes confetti-fall {
+    0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(300px) rotate(720deg); opacity: 0; }
+  }
+
+  /* ===== DEPOSIT SECTION ===== */
+  .deposit-section {}
+  .balance-card {
+    background: linear-gradient(135deg, var(--purple), #4a0080);
+    border-radius: 16px; padding: 20px;
+    margin-bottom: 20px; text-align: center;
+    box-shadow: 0 4px 20px rgba(123,47,190,0.4);
+  }
+  .balance-label { font-size: 0.8rem; letter-spacing: 2px; opacity: 0.7; margin-bottom: 4px; text-transform: uppercase; }
+  .balance-amount { font-family: 'Boogaloo', cursive; font-size: 2.5rem; color: var(--gold); }
+
+  .packages-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 10px; margin-bottom: 20px;
+  }
+  .package-card {
+    background: var(--card2);
+    border: 2px solid rgba(255,215,0,0.15);
+    border-radius: 14px; padding: 14px 10px;
+    text-align: center; cursor: pointer; transition: all 0.25s;
+  }
+  .package-card:hover, .package-card.selected {
+    border-color: var(--gold);
+    background: rgba(255,215,0,0.08);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(255,215,0,0.2);
+  }
+  .package-amount { font-family: 'Boogaloo', cursive; font-size: 1.5rem; color: var(--gold); }
+  .package-coins { font-size: 0.78rem; color: var(--green); font-weight: 700; margin-top: 2px; }
+  .package-bonus { font-size: 0.7rem; color: var(--red); font-weight: 700; }
+
+  .payment-methods { margin-bottom: 16px; }
+  .payment-methods label { font-size: 0.8rem; color: rgba(255,255,255,0.5); margin-bottom: 8px; display: block; text-transform: uppercase; letter-spacing: 1px; }
+  .methods-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .method-btn {
+    background: var(--card2); border: 1.5px solid rgba(255,255,255,0.1);
+    border-radius: 10px; padding: 10px 6px;
+    text-align: center; cursor: pointer; transition: all 0.2s;
+    font-size: 0.75rem; color: rgba(255,255,255,0.7);
+  }
+  .method-btn.active {
+    border-color: var(--blue); color: var(--blue);
+    background: rgba(0,176,255,0.1);
+  }
+  .method-icon { font-size: 1.4rem; display: block; margin-bottom: 3px; }
+
+  /* ===== HISTORY ===== */
+  .history-list { display: flex; flex-direction: column; gap: 8px; }
+  .history-item {
+    display: flex; align-items: center; gap: 12px;
+    background: var(--card2); border-radius: 12px; padding: 12px 14px;
+    border-left: 3px solid var(--gold);
+  }
+  .history-icon { font-size: 1.5rem; }
+  .history-info { flex: 1; }
+  .history-prize { font-weight: 700; font-size: 0.95rem; }
+  .history-time { font-size: 0.75rem; color: rgba(255,255,255,0.4); margin-top: 2px; }
+  .history-coins { font-weight: 900; color: var(--gold); font-size: 0.95rem; }
+
+  /* ===== TOAST ===== */
+  .toast {
+    position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px);
+    background: var(--card);
+    border: 1px solid rgba(255,215,0,0.3);
+    border-radius: 12px; padding: 12px 20px;
+    font-size: 0.9rem; font-weight: 700;
+    z-index: 300; transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+    white-space: nowrap;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* ===== PRIZE INDICATORS ===== */
+  .prizes-legend {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 6px; margin-bottom: 16px;
+  }
+  .prize-item {
+    display: flex; align-items: center; gap: 6px;
+    background: var(--card2); border-radius: 8px; padding: 7px 10px;
+    font-size: 0.75rem;
+  }
+  .prize-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .prize-name { color: rgba(255,255,255,0.8); font-weight: 700; }
+
+  .section-title {
+    font-size: 0.8rem; letter-spacing: 2px; text-transform: uppercase;
+    color: rgba(255,255,255,0.4); margin-bottom: 10px; padding-left: 4px;
+  }
+
+  /* Shimmer effect */
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+
+  .error-msg { color: var(--red); font-size: 0.82rem; margin-top: 8px; text-align: center; }
+  .success-msg { color: var(--green); font-size: 0.82rem; margin-top: 8px; text-align: center; }
+</style>
+</head>
+<body>
+
+<!-- Stars Background -->
+<div class="stars" id="stars"></div>
+
+<!-- =================== LOGIN SCREEN =================== -->
+<div class="screen active" id="loginScreen">
+  <div class="logo">🎰 LuckySpin</div>
+  <div class="tagline">✨ Spin & Win Big ✨</div>
+
+  <div class="card">
+    <h2>🔐 Login Karein</h2>
+    <div class="input-group">
+      <label>📧 Email / Username</label>
+      <input type="text" id="loginEmail" placeholder="aapka email ya username">
+    </div>
+    <div class="input-group">
+      <label>🔑 Password</label>
+      <input type="password" id="loginPass" placeholder="••••••••">
+    </div>
+    <div id="loginError" class="error-msg"></div>
+    <button class="btn btn-gold" style="margin-top:8px" onclick="doLogin()">LOGIN & KHELO 🚀</button>
+    <div class="link-text">Account nahi? <span onclick="showRegister()">Register Karein</span></div>
+  </div>
+</div>
+
+<!-- =================== REGISTER SCREEN =================== -->
+<div class="screen" id="registerScreen">
+  <div class="logo">🎰 LuckySpin</div>
+  <div class="tagline">✨ Register Karein ✨</div>
+
+  <div class="card">
+    <h2>👤 Naya Account</h2>
+    <div class="input-group">
+      <label>👤 Username</label>
+      <input type="text" id="regName" placeholder="aapka naam">
+    </div>
+    <div class="input-group">
+      <label>📧 Email</label>
+      <input type="email" id="regEmail" placeholder="email@example.com">
+    </div>
+    <div class="input-group">
+      <label>🔑 Password</label>
+      <input type="password" id="regPass" placeholder="kam az kam 6 characters">
+    </div>
+    <div id="regError" class="error-msg"></div>
+    <div id="regSuccess" class="success-msg"></div>
+    <button class="btn btn-gold" style="margin-top:8px" onclick="doRegister()">ACCOUNT BANAO 🎉</button>
+    <div class="link-text">Pehle se account hai? <span onclick="showLogin()">Login Karein</span></div>
+  </div>
+</div>
+
+<!-- =================== GAME SCREEN =================== -->
+<div class="screen" id="gameScreen">
+
+  <!-- Top Bar -->
+  <div class="topbar">
+    <div class="topbar-logo">🎰 LuckySpin</div>
+    <div class="coins-display">
+      <span class="coins-icon">🪙</span>
+      <span class="coins-value" id="topCoins">0</span>
+    </div>
+    <button class="logout-btn" onclick="doLogout()">Logout</button>
+  </div>
+
+  <div class="game-content">
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('spin', this)">🎯 Spin</button>
+      <button class="tab" onclick="switchTab('deposit', this)">💳 Deposit</button>
+      <button class="tab" onclick="switchTab('history', this)">📜 History</button>
+    </div>
+
+    <!-- ===== SPIN TAB ===== -->
+    <div class="tab-content active" id="tab-spin">
+      <div class="wheel-container">
+
+        <div id="freeSpinsBadge" class="free-spins-badge" style="display:none">
+          🎁 Free Spins: <strong id="freeSpinsCount">0</strong>
+        </div>
+
+        <div class="wheel-outer">
+          <div class="wheel-pointer">▼</div>
+          <canvas id="spinCanvas" width="300" height="300"></canvas>
+          <div class="center-circle">⭐</div>
+        </div>
+
+        <div class="spin-cost">1 spin = <strong>50 coins</strong> (ya free spin use karein)</div>
+
+        <button id="spinBtn" onclick="startSpin()">🎰 SPIN KARO!</button>
+      </div>
+
+      <div class="section-title">🏆 Prizes</div>
+      <div class="prizes-legend" id="prizesLegend"></div>
+    </div>
+
+    <!-- ===== DEPOSIT TAB ===== -->
+    <div class="tab-content" id="tab-deposit">
+
+      <div class="balance-card">
+        <div class="balance-label">Aapka Balance</div>
+        <div class="balance-amount">🪙 <span id="depositCoins">0</span></div>
+      </div>
+
+      <div class="section-title">📦 Package Chunein</div>
+      <div class="packages-grid" id="packagesGrid"></div>
+
+      <div class="payment-methods">
+        <label>💳 Payment Method</label>
+        <div class="methods-grid">
+          <div class="method-btn active" onclick="selectMethod(this, 'easypaisa')">
+            <span class="method-icon">📱</span>Easypaisa
+          </div>
+          <div class="method-btn" onclick="selectMethod(this, 'jazzcash')">
+            <span class="method-icon">💳</span>JazzCash
+          </div>
+          <div class="method-btn" onclick="selectMethod(this, 'card')">
+            <span class="method-icon">🏦</span>Card
+          </div>
+        </div>
+      </div>
+
+      <div id="depositMsg" class="success-msg"></div>
+      <button class="btn btn-green" onclick="processDeposit()">💰 DEPOSIT KAREIN</button>
+    </div>
+
+    <!-- ===== HISTORY TAB ===== -->
+    <div class="tab-content" id="tab-history">
+      <div class="section-title">📜 Spin History</div>
+      <div class="history-list" id="historyList">
+        <div style="text-align:center; padding: 30px; color: rgba(255,255,255,0.3)">
+          Abhi tak koi spin nahi kiya 🎯
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- =================== RESULT MODAL =================== -->
+<div class="modal-overlay" id="resultModal">
+  <div class="modal" id="modalInner">
+    <span class="modal-emoji" id="modalEmoji">🎉</span>
+    <div class="modal-title" id="modalTitle">Mubarak!</div>
+    <div class="modal-prize" id="modalPrize"></div>
+    <button class="btn btn-gold" onclick="closeModal()">SHUKRIYA! 🎊</button>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ===== STARS =====
+const starsEl = document.getElementById('stars');
+for (let i = 0; i < 60; i++) {
+  const s = document.createElement('div');
+  s.className = 'star';
+  const size = Math.random() * 3 + 1;
+  s.style.cssText = `width:${size}px;height:${size}px;top:${Math.random()*100}%;left:${Math.random()*100}%;animation-delay:${Math.random()*3}s;animation-duration:${2+Math.random()*3}s;`;
+  starsEl.appendChild(s);
+}
+
+// ===== STATE =====
+let users = JSON.parse(localStorage.getItem('ls_users') || '{}');
+let currentUser = JSON.parse(localStorage.getItem('ls_current') || 'null');
+let selectedPackage = null;
+let selectedMethod = 'easypaisa';
+let spinning = false;
+let currentAngle = 0;
+
+// ===== PRIZES =====
+const prizes = [
+  { label: '🪙 100 Coins',    coins: 100,   freeSpins: 0, type: 'coins',      color: '#FFD700', bg: '#3D2B00' },
+  { label: '😔 Next Time',    coins: 0,     freeSpins: 0, type: 'nothing',    color: '#666',    bg: '#1A1A1A' },
+  { label: '🆓 Free Spin',    coins: 0,     freeSpins: 1, type: 'freespin',   color: '#00E676', bg: '#003D1A' },
+  { label: '🪙 500 Coins',    coins: 500,   freeSpins: 0, type: 'coins',      color: '#FFA500', bg: '#3D2000' },
+  { label: '📱 iPhone 12 Pro',coins: 0,     freeSpins: 0, type: 'iphone',     color: '#00B0FF', bg: '#002040' },
+  { label: '😔 Next Time',    coins: 0,     freeSpins: 0, type: 'nothing',    color: '#666',    bg: '#1A1A1A' },
+  { label: '💵 Cash Rs.500',  coins: 0,     freeSpins: 0, type: 'cash',       color: '#FF2D55', bg: '#3D0010' },
+  { label: '🆓 2 Free Spins', coins: 0,     freeSpins: 2, type: 'freespin',   color: '#7B2FBE', bg: '#1F0040' },
+  { label: '🪙 200 Coins',    coins: 200,   freeSpins: 0, type: 'coins',      color: '#FFD700', bg: '#3D2B00' },
+  { label: '💵 Cash Rs.1000', coins: 0,     freeSpins: 0, type: 'cash',       color: '#FF6B00', bg: '#3D1500' },
+];
+
+const packages = [
+  { price: 'Rs. 100', coins: 200,  bonus: '',       label: 'Starter' },
+  { price: 'Rs. 250', coins: 600,  bonus: '+50 Bonus!', label: 'Popular' },
+  { price: 'Rs. 500', coins: 1400, bonus: '+200 Bonus!', label: 'Value' },
+  { price: 'Rs. 1000',coins: 3000, bonus: '+500 Bonus!', label: 'Premium' },
+];
+
+// ===== AUTH =====
+function doLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass = document.getElementById('loginPass').value;
+  document.getElementById('loginError').textContent = '';
+
+  if (!email || !pass) { document.getElementById('loginError').textContent = 'Sab fields bharein!'; return; }
+
+  const user = users[email];
+  if (!user || user.password !== pass) {
+    document.getElementById('loginError').textContent = 'Email ya password galat hai!';
+    return;
+  }
+
+  currentUser = email;
+  localStorage.setItem('ls_current', JSON.stringify(email));
+  showGame();
+}
+
+function doRegister() {
+  const name = document.getElementById('regName').value.trim();
+  const email = document.getElementById('regEmail').value.trim();
+  const pass = document.getElementById('regPass').value;
+  document.getElementById('regError').textContent = '';
+  document.getElementById('regSuccess').textContent = '';
+
+  if (!name || !email || !pass) { document.getElementById('regError').textContent = 'Sab fields bharein!'; return; }
+  if (pass.length < 6) { document.getElementById('regError').textContent = 'Password 6+ characters hona chahiye!'; return; }
+  if (users[email]) { document.getElementById('regError').textContent = 'Email pehle se registered hai!'; return; }
+
+  users[email] = { name, email, password: pass, coins: 500, freeSpins: 1, history: [] };
+  localStorage.setItem('ls_users', JSON.stringify(users));
+
+  document.getElementById('regSuccess').textContent = '✅ Account bana! 500 welcome coins mile! Login karein.';
+  setTimeout(() => showLogin(), 1500);
+}
+
+function doLogout() {
+  currentUser = null;
+  localStorage.removeItem('ls_current');
+  showLogin();
+}
+
+function getUser() { return users[currentUser]; }
+function saveUsers() { localStorage.setItem('ls_users', JSON.stringify(users)); }
+
+// ===== SCREEN NAVIGATION =====
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+function showLogin() { showScreen('loginScreen'); }
+function showRegister() { showScreen('registerScreen'); }
+
+function showGame() {
+  showScreen('gameScreen');
+  updateUI();
+  drawWheel();
+  renderPackages();
+  renderPrizesLegend();
+  renderHistory();
+}
+
+// ===== UI UPDATE =====
+function updateUI() {
+  const u = getUser();
+  if (!u) return;
+  document.getElementById('topCoins').textContent = u.coins.toLocaleString();
+  document.getElementById('depositCoins').textContent = u.coins.toLocaleString();
+
+  const badge = document.getElementById('freeSpinsBadge');
+  if (u.freeSpins > 0) {
+    badge.style.display = 'inline-flex';
+    document.getElementById('freeSpinsCount').textContent = u.freeSpins;
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+// ===== TABS =====
+function switchTab(name, el) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('tab-' + name).classList.add('active');
+  if (name === 'history') renderHistory();
+}
+
+// ===== WHEEL DRAWING =====
+function drawWheel(rotation = 0) {
+  const canvas = document.getElementById('spinCanvas');
+  const ctx = canvas.getContext('2d');
+  const cx = 150, cy = 150, r = 140;
+  const slice = (2 * Math.PI) / prizes.length;
+
+  ctx.clearRect(0, 0, 300, 300);
+
+  prizes.forEach((prize, i) => {
+    const start = rotation + i * slice;
+    const end = start + slice;
+
+    // Slice
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, r, start, end);
+    ctx.closePath();
+    ctx.fillStyle = prize.bg;
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(255,215,0,0.3)';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    // Text
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(start + slice / 2);
+    ctx.textAlign = 'right';
+    ctx.fillStyle = prize.color;
+    ctx.font = 'bold 11px Nunito, sans-serif';
+    ctx.shadowColor = prize.color;
+    ctx.shadowBlur = 4;
+
+    const lines = prize.label.split(' ');
+    if (lines.length <= 2) {
+      ctx.fillText(lines[0], r - 8, -4);
+      if (lines[1]) ctx.fillText(lines.slice(1).join(' '), r - 8, 10);
+    } else {
+      ctx.fillText(prize.label.substring(0, 12), r - 8, 0);
+    }
+    ctx.restore();
+  });
+
+  // Outer ring
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, 0, 2 * Math.PI);
+  ctx.strokeStyle = 'rgba(255,215,0,0.5)';
+  ctx.lineWidth = 3;
+  ctx.stroke();
+
+  // Inner ring
+  ctx.beginPath();
+  ctx.arc(cx, cy, 50, 0, 2 * Math.PI);
+  ctx.fillStyle = 'rgba(13,13,26,0.8)';
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(255,215,0,0.4)';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+}
+
+// ===== SPIN LOGIC =====
+function startSpin() {
+  if (spinning) return;
+  const u = getUser();
+
+  // Check coins or free spins
+  let usedFree = false;
+  if (u.freeSpins > 0) {
+    usedFree = true;
+    u.freeSpins--;
+  } else if (u.coins >= 50) {
+    u.coins -= 50;
+  } else {
+    showToast('⚠️ Kam coins! Deposit karein.');
+    switchTab('deposit', document.querySelectorAll('.tab')[1]);
+    return;
+  }
+
+  saveUsers();
+  updateUI();
+  spinning = true;
+  document.getElementById('spinBtn').disabled = true;
+
+  const extraSpins = Math.floor(Math.random() * 5 + 5);
+  const targetPrizeIndex = weightedRandom();
+  const slice = (2 * Math.PI) / prizes.length;
+  const targetAngle = (2 * Math.PI * extraSpins) + (2 * Math.PI - (targetPrizeIndex * slice + slice / 2) - Math.PI / 2);
+
+  const totalAngle = currentAngle + targetAngle;
+  const duration = 4000;
+  const start = performance.now();
+
+  function animate(now) {
+    const elapsed = now - start;
+    const progress = Math.min(elapsed / duration, 1);
+    const eased = easeOut(progress);
+    const angle = currentAngle + (targetAngle * eased);
+
+    drawWheel(angle);
+
+    if (progress < 1) {
+      requestAnimationFrame(animate);
+    } else {
+      currentAngle = angle % (2 * Math.PI);
+      spinning = false;
+      document.getElementById('spinBtn').disabled = false;
+      showResult(prizes[targetPrizeIndex], usedFree);
+      saveUsers();
+      updateUI();
+    }
+  }
+
+  requestAnimationFrame(animate);
+}
+
+function weightedRandom() {
+  // iphone is rare (5%), cash rare (10%), rest normal
+  const weights = prizes.map(p => {
+    if (p.type === 'iphone') return 2;
+    if (p.type === 'cash') return 8;
+    if (p.type === 'nothing') return 20;
+    return 14;
+  });
+  const total = weights.reduce((a, b) => a + b, 0);
+  let r = Math.random() * total;
+  for (let i = 0; i < weights.length; i++) {
+    r -= weights[i];
+    if (r <= 0) return i;
+  }
+  return 0;
+}
+
+function easeOut(t) {
+  return 1 - Math.pow(1 - t, 4);
+}
+
+// ===== RESULT =====
+function showResult(prize, usedFree) {
+  const u = getUser();
+
+  // Apply prize
+  let emoji = '🎉', title = 'Mubarak!', prizeText = '';
+
+  if (prize.type === 'nothing') {
+    emoji = '😢'; title = 'Agli Baar!';
+    prizeText = 'Is baar qismat ne sath nahi diya. Dobara try karein!';
+    addHistory(prize.label, 0, '😔');
+  } else if (prize.type === 'coins') {
+    u.coins += prize.coins;
+    prizeText = `Aapko <strong>🪙 ${prize.coins} Coins</strong> mile!`;
+    addHistory(prize.label, prize.coins, '🪙');
+  } else if (prize.type === 'freespin') {
+    u.freeSpins += prize.freeSpins;
+    prizeText = `Aapko <strong>🆓 ${prize.freeSpins} Free Spin(s)</strong> mile!`;
+    addHistory(prize.label, 0, '🆓');
+  } else if (prize.type === 'cash') {
+    prizeText = `Aapko <strong>💵 ${prize.label}</strong> mila! Admin contact karein.`;
+    addHistory(prize.label, 0, '💵');
+  } else if (prize.type === 'iphone') {
+    emoji = '🤩'; title = 'JACKPOT!!!';
+    prizeText = `🎊 Badhaai ho! Aapne <strong>📱 iPhone 12 Pro</strong> jeeta! Admin WhatsApp karein.`;
+    addHistory(prize.label, 0, '📱');
+    spawnConfetti();
+  }
+
+  document.getElementById('modalEmoji').textContent = emoji;
+  document.getElementById('modalTitle').textContent = title;
+  document.getElementById('modalPrize').innerHTML = prizeText;
+  document.getElementById('resultModal').classList.add('active');
+
+  saveUsers();
+  updateUI();
+}
+
+function addHistory(label, coins, icon) {
+  const u = getUser();
+  const now = new Date();
+  const time = now.toLocaleTimeString('ur-PK', { hour: '2-digit', minute: '2-digit' });
+  u.history.unshift({ label, coins, icon, time });
+  if (u.history.length > 20) u.history.pop();
+  saveUsers();
+}
+
+function closeModal() {
+  document.getElementById('resultModal').classList.remove('active');
+  document.getElementById('modalInner').querySelectorAll('.confetti-piece').forEach(c => c.remove());
+  renderHistory();
+}
+
+function spawnConfetti() {
+  const modal = document.getElementById('modalInner');
+  const colors = ['#FFD700', '#FF2D55', '#00E676', '#00B0FF', '#7B2FBE'];
+  for (let i = 0; i < 30; i++) {
+    const c = document.createElement('div');
+    c.className = 'confetti-piece';
+    c.style.cssText = `left:${Math.random()*100}%;top:0;background:${colors[Math.floor(Math.random()*colors.length)]};animation-delay:${Math.random()*0.5}s;animation-duration:${1+Math.random()}s;transform:rotate(${Math.random()*360}deg);`;
+    modal.appendChild(c);
+  }
+}
+
+// ===== DEPOSIT =====
+function renderPackages() {
+  const grid = document.getElementById('packagesGrid');
+  grid.innerHTML = packages.map((p, i) => `
+    <div class="package-card" onclick="selectPackage(${i}, this)">
+      <div class="package-amount">${p.price}</div>
+      <div class="package-coins">🪙 ${p.coins} Coins</div>
+      ${p.bonus ? `<div class="package-bonus">${p.bonus}</div>` : ''}
+      <div style="font-size:0.7rem;color:rgba(255,255,255,0.4);margin-top:3px">${p.label}</div>
+    </div>
+  `).join('');
+}
+
+function selectPackage(index, el) {
+  document.querySelectorAll('.package-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedPackage = index;
+}
+
+function selectMethod(el, method) {
+  document.querySelectorAll('.method-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  selectedMethod = method;
+}
+
+function processDeposit() {
+  if (selectedPackage === null) { showToast('⚠️ Pehle package chunein!'); return; }
+  const pkg = packages[selectedPackage];
+  const u = getUser();
+
+  // Simulate payment (in real app: integrate payment gateway)
+  const coinsToAdd = pkg.coins;
+  u.coins += coinsToAdd;
+  saveUsers();
+  updateUI();
+
+  document.getElementById('depositMsg').textContent = `✅ ${pkg.price} ka deposit successful! 🪙 ${coinsToAdd} coins add huay!`;
+  showToast(`🎉 ${coinsToAdd} Coins Add Huay!`);
+
+  selectedPackage = null;
+  document.querySelectorAll('.package-card').forEach(c => c.classList.remove('selected'));
+
+  setTimeout(() => { document.getElementById('depositMsg').textContent = ''; }, 4000);
+}
+
+// ===== HISTORY =====
+function renderHistory() {
+  const u = getUser();
+  const list = document.getElementById('historyList');
+  if (!u.history || u.history.length === 0) {
+    list.innerHTML = '<div style="text-align:center;padding:30px;color:rgba(255,255,255,0.3)">Abhi tak koi spin nahi kiya 🎯</div>';
+    return;
+  }
+  list.innerHTML = u.history.map(h => `
+    <div class="history-item">
+      <div class="history-icon">${h.icon}</div>
+      <div class="history-info">
+        <div class="history-prize">${h.label}</div>
+        <div class="history-time">${h.time}</div>
+      </div>
+      ${h.coins > 0 ? `<div class="history-coins">+${h.coins}</div>` : ''}
+    </div>
+  `).join('');
+}
+
+// ===== PRIZES LEGEND =====
+function renderPrizesLegend() {
+  const unique = prizes.filter((p, i, arr) => arr.findIndex(x => x.label === p.label) === i);
+  document.getElementById('prizesLegend').innerHTML = unique.map(p => `
+    <div class="prize-item">
+      <div class="prize-dot" style="background:${p.color}"></div>
+      <div class="prize-name">${p.label}</div>
+    </div>
+  `).join('');
+}
+
+// ===== TOAST =====
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ===== INIT =====
+if (currentUser && users[currentUser]) {
+  showGame();
+} else {
+  showLogin();
+}
+</script>
+</body>
+</html>
