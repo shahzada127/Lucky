@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>🎰 Lucky Spin</title>
+<link href="https://fonts.googleapis.com/css2?family=Boogaloo&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+:root{--gold:#FFD700;--gold2:#FFA500;--red:#FF2D55;--purple:#7B2FBE;--dark:#0D0D1A;--card:#1A1A2E;--card2:#16213E;--green:#00E676;--blue:#00B0FF;}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:'Nunito',sans-serif;background:var(--dark);color:#F0F0FF;min-height:100vh;overflow-x:hidden;background-image:radial-gradient(circle at 20% 20%,rgba(123,47,190,.3),transparent 50%),radial-gradient(circle at 80% 80%,rgba(255,45,85,.2),transparent 50%);}
+.stars{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;}
+.star{position:absolute;border-radius:50%;background:#fff;animation:twinkle 3s infinite alternate;}
+@keyframes twinkle{from{opacity:.1}to{opacity:.9}}
+/* ---- SCREENS ---- */
+.screen{display:none;position:relative;z-index:10;min-height:100vh;padding:20px;flex-direction:column;align-items:center;justify-content:center;}
+.screen.active{display:flex;}
+/* ---- AUTH ---- */
+.logo{font-family:'Boogaloo',cursive;font-size:2.8rem;background:linear-gradient(135deg,#FFD700,#FFA500,#FF2D55);-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 18px rgba(255,215,0,.6));animation:glow 2s infinite alternate;}
+@keyframes glow{from{filter:drop-shadow(0 0 12px rgba(255,215,0,.4))}to{filter:drop-shadow(0 0 30px rgba(255,165,0,.9))}}
+.tagline{font-size:.85rem;color:var(--gold);letter-spacing:3px;text-transform:uppercase;margin:6px 0 24px;}
+.card{background:var(--card);border:1px solid rgba(255,215,0,.2);border-radius:20px;padding:26px 22px;width:100%;max-width:370px;box-shadow:0 0 40px rgba(123,47,190,.25);}
+.card h2{font-size:1.2rem;font-weight:900;color:var(--gold);margin-bottom:18px;text-align:center;}
+.ig{margin-bottom:14px;}
+.ig label{font-size:.78rem;color:rgba(255,255,255,.55);margin-bottom:5px;display:block;letter-spacing:1px;text-transform:uppercase;}
+.ig input,.ig select{width:100%;padding:12px 14px;background:rgba(255,255,255,.06);border:1.5px solid rgba(255,215,0,.2);border-radius:11px;color:#fff;font-size:.95rem;font-family:'Nunito',sans-serif;outline:none;transition:all .3s;-webkit-appearance:none;}
+.ig input:focus,.ig select:focus{border-color:var(--gold);background:rgba(255,215,0,.05);box-shadow:0 0 12px rgba(255,215,0,.15);}
+.ig select option{background:#1A1A2E;}
+.btn{width:100%;padding:14px;border:none;border-radius:13px;font-size:1rem;font-weight:900;font-family:'Nunito',sans-serif;cursor:pointer;transition:all .18s;letter-spacing:1px;text-transform:uppercase;}
+.btn:active{transform:scale(.96);}
+.btn-gold{background:linear-gradient(135deg,#FFD700,#FFA500);color:#1A1A2E;box-shadow:0 4px 18px rgba(255,165,0,.45);}
+.btn-red{background:linear-gradient(135deg,#FF2D55,#C0392B);color:#fff;box-shadow:0 4px 18px rgba(255,45,85,.4);margin-top:9px;}
+.btn-green{background:linear-gradient(135deg,#00E676,#00BFA5);color:#1A1A2E;box-shadow:0 4px 18px rgba(0,230,118,.4);}
+.btn-outline{background:transparent;border:2px solid var(--gold);color:var(--gold);margin-top:8px;}
+.link-text{text-align:center;margin-top:14px;font-size:.84rem;color:rgba(255,255,255,.45);}
+.link-text span{color:var(--gold);cursor:pointer;font-weight:700;}
+/* ---- TOPBAR ---- */
+.topbar{position:fixed;top:0;left:0;right:0;padding:10px 14px;background:rgba(13,13,26,.97);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,215,0,.13);display:flex;justify-content:space-between;align-items:center;z-index:200;gap:8px;}
+.tlogo{font-family:'Boogaloo',cursive;font-size:1.3rem;color:var(--gold);}
+.coins-pill{display:flex;align-items:center;gap:5px;background:rgba(255,215,0,.1);border:1px solid rgba(255,215,0,.3);border-radius:20px;padding:5px 12px;}
+.coins-val{font-weight:900;color:var(--gold);font-size:.92rem;}
+.tbtn{border-radius:9px;padding:6px 10px;cursor:pointer;font-size:.73rem;font-family:'Nunito',sans-serif;font-weight:700;border:none;}
+.tbtn-red{background:rgba(255,45,85,.2);border:1px solid rgba(255,45,85,.4);color:var(--red);}
+.tbtn-purple{background:rgba(123,47,190,.25);border:1px solid rgba(123,47,190,.5);color:#c084fc;}
+/* ---- GAME ---- */
+#gameScreen{padding-top:72px;justify-content:flex-start;}
+.gc{width:100%;max-width:430px;margin:0 auto;}
+/* ---- TABS ---- */
+.tabs{display:flex;gap:4px;margin-bottom:16px;background:var(--card2);border-radius:13px;padding:4px;}
+.tab{flex:1;padding:8px 2px;border:none;background:transparent;color:rgba(255,255,255,.45);border-radius:9px;font-family:'Nunito',sans-serif;font-size:.68rem;font-weight:700;cursor:pointer;transition:all .22s;text-transform:uppercase;}
+.tab.active{background:linear-gradient(135deg,var(--purple),#FF2D55);color:#fff;box-shadow:0 2px 10px rgba(123,47,190,.4);}
+.tab-c{display:none;}.tab-c.active{display:block;}
+/* ---- SPIN WHEEL ---- */
+.wcon{display:flex;flex-direction:column;align-items:center;padding:8px 0 14px;}
+/* Pointer is FIXED at top. Canvas rotates. Winner = whatever is under pointer. */
+.wheel-wrap{position:relative;width:308px;height:308px;margin-bottom:14px;}
+/* The fixed arrow pointer at top-center */
+.ptr{position:absolute;top:-4px;left:50%;transform:translateX(-50%);z-index:20;filter:drop-shadow(0 0 6px #FFD700);}
+#wcanvas{position:absolute;top:4px;left:4px;border-radius:50%;box-shadow:0 0 0 5px rgba(255,215,0,.3),0 0 0 9px rgba(255,165,0,.13),0 0 35px rgba(255,165,0,.4),0 0 65px rgba(123,47,190,.25);}
+.cbtn{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:56px;height:56px;background:radial-gradient(circle,#FFD700,#FF8C00);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.85rem;font-weight:900;box-shadow:0 0 18px rgba(255,165,0,.8);cursor:pointer;z-index:15;border:none;color:#1A1A2E;font-family:'Boogaloo',cursive;letter-spacing:.5px;transition:transform .15s;}
+.cbtn:active{transform:translate(-50%,-50%) scale(.9);}
+.cbtn:disabled{opacity:.6;cursor:not-allowed;}
+.spin-cost-note{font-size:.78rem;color:rgba(255,255,255,.55);margin-bottom:10px;text-align:center;}
+.spin-cost-note strong{color:var(--gold);}
+.fs-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(0,230,118,.15);border:1px solid rgba(0,230,118,.4);border-radius:20px;padding:5px 12px;font-size:.8rem;color:var(--green);font-weight:700;margin-bottom:8px;}
+/* ---- PRIZES LEGEND ---- */
+.pleg{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:12px;}
+.pi{display:flex;align-items:center;gap:5px;background:var(--card2);border-radius:7px;padding:5px 8px;font-size:.7rem;}
+.pd{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+/* ---- RESULT MODAL ---- */
+.modal-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);backdrop-filter:blur(7px);z-index:300;align-items:center;justify-content:center;padding:18px;}
+.modal-ov.active{display:flex;}
+.modal{background:linear-gradient(135deg,var(--card),#1f1040);border:2px solid rgba(255,215,0,.3);border-radius:22px;padding:26px 20px;text-align:center;max-width:330px;width:100%;animation:mpop .4s cubic-bezier(.34,1.56,.64,1);position:relative;overflow:hidden;}
+@keyframes mpop{from{transform:scale(.4) rotate(-8deg);opacity:0}to{transform:scale(1);opacity:1}}
+.mem{font-size:3.8rem;display:block;margin-bottom:8px;}
+.mtitle{font-family:'Boogaloo',cursive;font-size:1.9rem;color:var(--gold);margin-bottom:7px;}
+.mprize{font-size:.96rem;color:#fff;line-height:1.6;margin-bottom:14px;}
+.mprize strong{color:var(--green);font-size:1.15rem;}
+.admin-note{background:rgba(255,165,0,.1);border:1px solid rgba(255,165,0,.3);border-radius:9px;padding:9px 12px;font-size:.76rem;color:var(--gold2);margin-bottom:12px;line-height:1.6;}
+.conf{position:absolute;width:8px;height:8px;border-radius:2px;animation:cfall 1.6s ease-out forwards;}
+@keyframes cfall{0%{transform:translateY(-10px) rotate(0);opacity:1}100%{transform:translateY(320px) rotate(720deg);opacity:0}}
+/* ---- BALANCE ---- */
+.bal-card{background:linear-gradient(135deg,var(--purple),#4a0080);border-radius:15px;padding:17px;margin-bottom:16px;text-align:center;box-shadow:0 4px 18px rgba(123,47,190,.4);}
+.bal-lbl{font-size:.75rem;letter-spacing:2px;opacity:.65;margin-bottom:4px;text-transform:uppercase;}
+.bal-amt{font-family:'Boogaloo',cursive;font-size:2.3rem;color:var(--gold);}
+/* ---- PACKAGES ---- */
+.pkg-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:16px;}
+.pkg-card{background:var(--card2);border:2px solid rgba(255,215,0,.14);border-radius:13px;padding:12px 8px;text-align:center;cursor:pointer;transition:all .22s;}
+.pkg-card:hover,.pkg-card.sel{border-color:var(--gold);background:rgba(255,215,0,.07);transform:translateY(-2px);box-shadow:0 4px 14px rgba(255,215,0,.2);}
+.pkg-price{font-family:'Boogaloo',cursive;font-size:1.4rem;color:var(--gold);}
+.pkg-coins{font-size:.72rem;color:var(--green);font-weight:700;margin-top:2px;}
+.pkg-bonus{font-size:.65rem;color:var(--red);font-weight:700;}
+/* ---- PAYMENT FLOW ---- */
+.pay-box{background:var(--card2);border:1.5px solid rgba(255,215,0,.22);border-radius:15px;padding:17px;margin-bottom:13px;}
+.pay-box h3{color:var(--gold);font-size:.9rem;margin-bottom:11px;text-align:center;}
+.meth-tabs{display:flex;gap:5px;margin-bottom:13px;}
+.mt{flex:1;padding:9px 3px;border:1.5px solid rgba(255,255,255,.1);border-radius:9px;background:rgba(255,255,255,.04);color:rgba(255,255,255,.55);font-family:'Nunito',sans-serif;font-size:.73rem;font-weight:700;cursor:pointer;text-align:center;transition:all .2s;}
+.mt.active{border-color:var(--blue);color:var(--blue);background:rgba(0,176,255,.1);}
+.mt .mi{display:block;font-size:1.3rem;margin-bottom:2px;}
+.admin-box{background:rgba(255,215,0,.07);border:1px dashed rgba(255,215,0,.4);border-radius:11px;padding:13px;margin-bottom:11px;text-align:center;}
+.abl{font-size:.68rem;color:rgba(255,255,255,.45);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;}
+.abn{font-family:'Boogaloo',cursive;font-size:1.4rem;color:var(--gold);letter-spacing:.5px;word-break:break-all;}
+.abac{font-size:.72rem;color:rgba(255,255,255,.38);margin-top:3px;}
+.cbtn2{margin-top:7px;background:rgba(255,215,0,.13);border:1px solid rgba(255,215,0,.3);color:var(--gold);border-radius:7px;padding:4px 11px;font-size:.73rem;font-family:'Nunito',sans-serif;font-weight:700;cursor:pointer;}
+.dep-steps{font-size:.77rem;color:rgba(255,255,255,.62);line-height:1.8;background:rgba(255,255,255,.04);border-radius:9px;padding:10px 12px;margin-bottom:11px;counter-reset:s;list-style:none;}
+.dep-steps li{counter-increment:s;padding-left:20px;position:relative;margin-bottom:3px;}
+.dep-steps li::before{content:counter(s);position:absolute;left:0;top:1px;background:var(--gold);color:#111;width:15px;height:15px;border-radius:50%;font-size:.62rem;font-weight:900;display:flex;align-items:center;justify-content:center;}
+/* ---- STATUS BADGES ---- */
+.sb{display:inline-block;padding:3px 9px;border-radius:20px;font-size:.68rem;font-weight:700;}
+.sp{background:rgba(255,165,0,.2);color:var(--gold2);border:1px solid rgba(255,165,0,.4);}
+.sa{background:rgba(0,230,118,.2);color:var(--green);border:1px solid rgba(0,230,118,.4);}
+.sr{background:rgba(255,45,85,.2);color:var(--red);border:1px solid rgba(255,45,85,.4);}
+/* ---- HISTORY / WD / DEP ITEMS ---- */
+.hi{display:flex;align-items:center;gap:9px;background:var(--card2);border-radius:11px;padding:10px 12px;border-left:3px solid var(--gold);margin-bottom:7px;}
+.hic{font-size:1.35rem;}
+.hii{flex:1;}
+.hipr{font-weight:700;font-size:.87rem;}
+.hit{font-size:.68rem;color:rgba(255,255,255,.38);margin-top:2px;}
+.hicn{font-weight:900;color:var(--gold);font-size:.87rem;}
+/* ---- WITHDRAW ---- */
+.wd-box{background:var(--card2);border:1.5px solid rgba(255,45,85,.22);border-radius:15px;padding:17px;margin-bottom:13px;}
+.wd-box h3{color:var(--red);font-size:.9rem;margin-bottom:5px;text-align:center;}
+.mn{font-size:.73rem;color:rgba(255,255,255,.38);text-align:center;margin-bottom:10px;}
+.mn strong{color:var(--gold);}
+.wrate{font-size:.72rem;background:rgba(0,230,118,.07);border:1px solid rgba(0,230,118,.2);border-radius:7px;padding:6px 10px;color:rgba(255,255,255,.52);margin-bottom:11px;text-align:center;}
+.wrate strong{color:var(--green);}
+.wr-item{display:flex;align-items:center;gap:8px;background:var(--card);border-radius:11px;padding:10px 12px;margin-bottom:7px;border-left:3px solid var(--gold);}
+.wri{flex:1;}
+.wra{font-weight:900;color:var(--red);font-size:.87rem;}
+.wrd{font-size:.7rem;color:rgba(255,255,255,.4);margin-top:2px;}
+/* ---- SECTION TITLE ---- */
+.st{font-size:.72rem;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.35);margin-bottom:7px;padding-left:2px;}
+.div{height:1px;background:rgba(255,255,255,.06);margin:12px 0;}
+/* ---- ADMIN ---- */
+#adminScreen{padding-top:0;justify-content:flex-start;background:#0a0a15;}
+.atopbar{width:100%;display:flex;align-items:center;justify-content:space-between;padding:13px 16px;background:rgba(123,47,190,.2);border-bottom:1px solid rgba(123,47,190,.4);margin-bottom:14px;}
+.atopbar h2{font-family:'Boogaloo',cursive;color:#c084fc;font-size:1.35rem;}
+.ac{width:100%;max-width:490px;margin:0 auto;padding:0 14px 30px;}
+.atabs{display:flex;gap:4px;margin-bottom:14px;background:rgba(255,255,255,.05);border-radius:11px;padding:4px;flex-wrap:wrap;}
+.at{flex:1;min-width:60px;padding:8px 3px;border:none;background:transparent;color:rgba(255,255,255,.38);border-radius:8px;font-family:'Nunito',sans-serif;font-size:.65rem;font-weight:700;cursor:pointer;transition:all .2s;text-transform:uppercase;}
+.at.active{background:linear-gradient(135deg,var(--purple),#4a0080);color:#fff;}
+.atc{display:none;}.atc.active{display:block;}
+.ari{background:var(--card);border-radius:11px;padding:11px 13px;margin-bottom:7px;border-left:3px solid var(--purple);}
+.ari h4{font-size:.84rem;color:#fff;margin-bottom:3px;}
+.ari p{font-size:.72rem;color:rgba(255,255,255,.48);margin-bottom:2px;line-height:1.5;}
+.arbtns{display:flex;gap:5px;margin-top:7px;}
+.apbtn{flex:1;padding:7px;background:linear-gradient(135deg,#00E676,#00BFA5);color:#111;border:none;border-radius:8px;font-family:'Nunito',sans-serif;font-size:.76rem;font-weight:900;cursor:pointer;}
+.arbtn{flex:1;padding:7px;background:linear-gradient(135deg,#FF2D55,#C0392B);color:#fff;border:none;border-radius:8px;font-family:'Nunito',sans-serif;font-size:.76rem;font-weight:900;cursor:pointer;}
+.astat{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:13px;}
+.asc{background:var(--card);border-radius:11px;padding:11px;text-align:center;}
+.asv{font-family:'Boogaloo',cursive;font-size:1.55rem;color:var(--gold);}
+.asl{font-size:.66rem;color:rgba(255,255,255,.38);text-transform:uppercase;letter-spacing:1px;}
+.ui{background:var(--card);border-radius:11px;padding:11px 13px;margin-bottom:7px;}
+.uit{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;}
+.un{font-weight:900;font-size:.87rem;}
+.ucb{background:rgba(255,215,0,.14);border:1px solid rgba(255,215,0,.3);color:var(--gold);border-radius:20px;padding:3px 10px;font-size:.74rem;font-weight:700;}
+.uas{display:flex;gap:4px;margin-top:5px;}
+.uab{padding:5px 10px;border:none;border-radius:7px;font-family:'Nunito',sans-serif;font-size:.68rem;font-weight:700;cursor:pointer;}
+.uaa{background:rgba(0,230,118,.18);color:var(--green);border:1px solid rgba(0,230,118,.3);}
+.uar{background:rgba(255,45,85,.18);color:var(--red);border:1px solid rgba(255,45,85,.3);}
+/* ---- TOAST ---- */
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--card);border:1px solid rgba(255,215,0,.3);border-radius:11px;padding:10px 18px;font-size:.86rem;font-weight:700;z-index:400;transition:transform .3s cubic-bezier(.34,1.56,.64,1);white-space:nowrap;max-width:92vw;text-align:center;}
+.toast.show{transform:translateX(-50%) translateY(0);}
+.err{color:#FF2D55;font-size:.78rem;margin-top:6px;text-align:center;}
+.suc{color:var(--green);font-size:.78rem;margin-top:6px;text-align:center;}
+.empty{text-align:center;padding:26px;color:rgba(255,255,255,.28);font-size:.86rem;}
+</style>
+</head>
+<body>
+<div class="stars" id="stars"></div>
+
+<!-- ===== LOGIN ===== -->
+<div class="screen active" id="loginScreen">
+  <div class="logo">🎰 LuckySpin</div>
+  <div class="tagline">✨ Spin & Win Big ✨</div>
+  <div class="card">
+    <h2>🔐 Login Karein</h2>
+    <div class="ig"><label>📧 Email / Username</label><input id="liE" type="text" placeholder="email ya username"></div>
+    <div class="ig"><label>🔑 Password</label><input id="liP" type="password" placeholder="••••••••"></div>
+    <div id="liErr" class="err"></div>
+    <button class="btn btn-gold" style="margin-top:8px" onclick="doLogin()">LOGIN 🚀</button>
+    <div class="link-text">Account nahi? <span onclick="SS('registerScreen')">Register Karein</span></div>
+  </div>
+</div>
+
+<!-- ===== REGISTER ===== -->
+<div class="screen" id="registerScreen">
+  <div class="logo">🎰 LuckySpin</div>
+  <div class="tagline">✨ Join Karein ✨</div>
+  <div class="card">
+    <h2>👤 Naya Account</h2>
+    <div class="ig"><label>👤 Naam</label><input id="rN" type="text" placeholder="aapka naam"></div>
+    <div class="ig"><label>📧 Email</label><input id="rE" type="email" placeholder="email@example.com"></div>
+    <div class="ig"><label>🔑 Password</label><input id="rP" type="password" placeholder="6+ characters"></div>
+    <div id="rErr" class="err"></div><div id="rOk" class="suc"></div>
+    <button class="btn btn-gold" style="margin-top:8px" onclick="doReg()">ACCOUNT BANAO 🎉</button>
+    <div class="link-text">Account hai? <span onclick="SS('loginScreen')">Login Karein</span></div>
+  </div>
+</div>
+
+<!-- ===== GAME ===== -->
+<div class="screen" id="gameScreen">
+  <div class="topbar">
+    <div class="tlogo">🎰 Lucky</div>
+    <div class="coins-pill"><span>🪙</span><span class="coins-val" id="topC">0</span></div>
+    <div style="display:flex;gap:5px">
+      <button class="tbtn tbtn-purple" id="adminNavBtn" style="display:none" onclick="goAdmin()">⚙️ Admin</button>
+      <button class="tbtn tbtn-red" onclick="doLogout()">Logout</button>
+    </div>
+  </div>
+  <div class="gc">
+    <div class="tabs">
+      <button class="tab active" onclick="sT('spin',this)">🎯 Spin</button>
+      <button class="tab" onclick="sT('deposit',this)">💳 Deposit</button>
+      <button class="tab" onclick="sT('withdraw',this)">💸 Withdraw</button>
+      <button class="tab" onclick="sT('history',this)">📜 History</button>
+    </div>
+
+    <!-- SPIN -->
+    <div class="tab-c active" id="tc-spin">
+      <div class="wcon">
+        <div id="fsBadge" class="fs-badge" style="display:none">🎁 Free Spins: <strong id="fsN">0</strong></div>
+        <div class="wheel-wrap">
+          <!-- Fixed pointer SVG triangle at top -->
+          <svg class="ptr" width="28" height="28" viewBox="0 0 28 28">
+            <polygon points="14,2 26,26 2,26" fill="#FFD700" stroke="#FF8C00" stroke-width="2"/>
+          </svg>
+          <canvas id="wcanvas" width="300" height="300"></canvas>
+          <button class="cbtn" id="spinBtn" onclick="doSpin()">SPIN!</button>
+        </div>
+        <div class="spin-cost-note">1 spin = <strong>10 coins</strong> (ya free spin)</div>
+      </div>
+      <div class="st">🏆 Prizes</div>
+      <div class="pleg" id="pleg"></div>
+    </div>
+
+    <!-- DEPOSIT -->
+    <div class="tab-c" id="tc-deposit">
+      <div class="bal-card"><div class="bal-lbl">Aapka Balance</div><div class="bal-amt">🪙 <span id="depC">0</span></div></div>
+      <div class="st">📦 Package Chunein</div>
+      <div class="pkg-grid" id="pkgGrid"></div>
+      <div class="pay-box" id="payBox" style="display:none">
+        <h3>💳 Payment — <span id="selPkgLbl" style="color:var(--green)"></span></h3>
+        <div class="meth-tabs">
+          <div class="mt active" onclick="selM(this,'easypaisa')"><span class="mi">💚</span>Easypaisa</div>
+          <div class="mt" onclick="selM(this,'jazzcash')"><span class="mi">📱</span>JazzCash</div>
+          <div class="mt" onclick="selM(this,'bank')"><span class="mi">🏦</span>Bank</div>
+        </div>
+        <div class="admin-box">
+          <div class="abl" id="abl">Easypaisa IBAN</div>
+          <div class="abn" id="abn">PK15TMFB0000000072267395</div>
+          <div class="abac">Account: Lucky Spin Admin</div>
+          <button class="cbtn2" onclick="copyNum()">📋 Copy</button>
+        </div>
+        <ol class="dep-steps">
+          <li>Upar diye <span id="ds1m">Easypaisa</span> number par <strong id="ds1a">—</strong> bhejein</li>
+          <li>Transaction ID (TxnID) note karein</li>
+          <li>Apna number aur TxnID neeche daalein</li>
+          <li>Submit — Admin 5-10 min mein coins add karega ✅</li>
+        </ol>
+        <div class="ig"><label>📞 Aapka <span id="sMl">Easypaisa</span> Number</label><input id="sNum" type="tel" placeholder="03XX-XXXXXXX"></div>
+        <div class="ig"><label>🔖 Transaction ID</label><input id="txn" type="text" placeholder="TxnID daalein"></div>
+        <div id="dFErr" class="err"></div><div id="dFOk" class="suc"></div>
+        <button class="btn btn-gold" onclick="submitDep()">✅ SUBMIT</button>
+        <button class="btn btn-outline" onclick="cancelDep()">← Wapis</button>
+      </div>
+      <div id="pendSec" style="display:none"><div class="div"></div><div class="st">⏳ Deposit Requests</div><div id="pendList"></div></div>
+    </div>
+
+    <!-- WITHDRAW -->
+    <div class="tab-c" id="tc-withdraw">
+      <div class="bal-card"><div class="bal-lbl">Available Balance</div><div class="bal-amt">🪙 <span id="wdC">0</span></div></div>
+      <div class="wd-box">
+        <h3>💸 Withdraw Request</h3>
+        <div class="mn">Minimum: <strong>500 Coins</strong> | Rate: <strong>10 coins = Rs.1</strong></div>
+        <div class="wrate">500🪙=<strong>Rs.50</strong> | 1000🪙=<strong>Rs.100</strong> | 5000🪙=<strong>Rs.500</strong></div>
+        <div class="ig"><label>💰 Coins</label><input id="wAmt" type="number" placeholder="min 500" min="500" oninput="calcWd()"></div>
+        <div id="wdPKR" style="font-size:.84rem;color:var(--green);font-weight:700;text-align:center;margin-bottom:9px;"></div>
+        <div class="ig"><label>📱 Method</label>
+          <select id="wMeth" onchange="updateWL()">
+            <option value="easypaisa">💚 Easypaisa</option>
+            <option value="jazzcash">📱 JazzCash</option>
+            <option value="bank">🏦 Bank</option>
+          </select>
+        </div>
+        <div class="ig"><label id="wNL">📞 Easypaisa Number</label><input id="wNum" type="tel" placeholder="03XX-XXXXXXX"></div>
+        <div class="ig"><label>👤 Account Name</label><input id="wName" type="text" placeholder="aapka naam"></div>
+        <div id="wErr" class="err"></div><div id="wOk" class="suc"></div>
+        <button class="btn btn-red" style="margin-top:4px" onclick="submitWd()">💸 REQUEST</button>
+      </div>
+      <div id="myWdSec" style="display:none"><div class="st">📋 Meri Requests</div><div id="myWdList"></div></div>
+    </div>
+
+    <!-- HISTORY -->
+    <div class="tab-c" id="tc-history">
+      <div class="st">📜 Spin History</div>
+      <div id="histList"><div class="empty">Abhi tak koi spin nahi 🎯</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== ADMIN ===== -->
+<div class="screen" id="adminScreen">
+  <div class="atopbar">
+    <h2>⚙️ Admin Panel</h2>
+    <button class="tbtn tbtn-red" onclick="backToGame()">← Game</button>
+  </div>
+  <div class="ac">
+    <div class="atabs">
+      <button class="at active" onclick="sAT('stats',this)">📊 Stats</button>
+      <button class="at" onclick="sAT('deps',this)">💳 Deposits</button>
+      <button class="at" onclick="sAT('wds',this)">💸 Withdraws</button>
+      <button class="at" onclick="sAT('bwins',this)">🏆 Big Wins</button>
+      <button class="at" onclick="sAT('users',this)">👥 Users</button>
+    </div>
+    <div class="atc active" id="atc-stats"><div class="astat" id="aStats"></div></div>
+    <div class="atc" id="atc-deps"><div id="aDeps"><div class="empty">Koi request nahi</div></div></div>
+    <div class="atc" id="atc-wds"><div id="aWds"><div class="empty">Koi request nahi</div></div></div>
+    <div class="atc" id="atc-bwins">
+      <p style="font-size:.76rem;color:rgba(255,255,255,.45);margin-bottom:10px;line-height:1.6">500, 1000, 5000 coins, iPhone, Bike — ye prizes sirf admin ki approval ke baad milenge. Jis user ko aap allow karein usi ko milega.</p>
+      <div id="aBWins"><div class="empty">Koi pending nahi</div></div>
+    </div>
+    <div class="atc" id="atc-users"><div id="aUsers"><div class="empty">Koi user nahi</div></div></div>
+  </div>
+</div>
+
+<!-- ===== RESULT MODAL ===== -->
+<div class="modal-ov" id="rModal">
+  <div class="modal" id="mInner">
+    <span class="mem" id="mEmo">🎉</span>
+    <div class="mtitle" id="mTit">Mubarak!</div>
+    <div class="mprize" id="mPrize"></div>
+    <div id="aNoteDiv" class="admin-note" style="display:none">⏳ Yeh prize admin ki approval ke baad aapko milega. Admin jald process karega!</div>
+    <button class="btn btn-gold" style="margin-top:12px" onclick="closeModal()">THEEK HAI 👍</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================
+   AUDIO ENGINE
+============================================================ */
+let AC=null;
+function gAC(){if(!AC)AC=new(window.AudioContext||window.webkitAudioContext)();return AC;}
+function playTick(){try{const c=gAC(),o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.frequency.value=900+Math.random()*200;g.gain.setValueAtTime(.12,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.04);o.start();o.stop(c.currentTime+.04);}catch(e){}}
+function playLose(){try{const c=gAC(),o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.frequency.setValueAtTime(280,c.currentTime);o.frequency.exponentialRampToValueAtTime(120,c.currentTime+.5);g.gain.setValueAtTime(.14,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.5);o.start();o.stop(c.currentTime+.5);}catch(e){}}
+function playWin(){try{const c=gAC();[0,.13,.26,.4].forEach((d,i)=>{const o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.frequency.value=[523,659,784,1047][i];g.gain.setValueAtTime(.18,c.currentTime+d);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+d+.28);o.start(c.currentTime+d);o.stop(c.currentTime+d+.3);});}catch(e){}}
+function playJackpot(){try{const c=gAC();[0,.15,.3,.45,.6,.75,.9].forEach((d,i)=>{const o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.type='triangle';o.frequency.value=[523,659,784,1047,1319,1568,2093][i];g.gain.setValueAtTime(.22,c.currentTime+d);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+d+.5);o.start(c.currentTime+d);o.stop(c.currentTime+d+.55);});}catch(e){}}
+
+/* ============================================================
+   STARS
+============================================================ */
+(()=>{const el=document.getElementById('stars');for(let i=0;i<65;i++){const s=document.createElement('div');s.className='star';const z=Math.random()*3+1;s.style.cssText=`width:${z}px;height:${z}px;top:${Math.random()*100}%;left:${Math.random()*100}%;animation-delay:${Math.random()*3}s;animation-duration:${2+Math.random()*3}s;`;el.appendChild(s);}})();
+
+/* ============================================================
+   CONFIG
+============================================================ */
+const ADMIN_EMAIL='admin', ADMIN_PASS='admin123';
+const ADMIN_ACCS={
+  easypaisa:{number:'PK15TMFB0000000072267395',label:'Easypaisa IBAN',method:'Easypaisa'},
+  jazzcash: {number:'0300-1234567',label:'JazzCash Number',method:'JazzCash'},
+  bank:     {number:'PK15TMFB0000000072267395',label:'IBAN',method:'Bank Transfer'},
+};
+
+/* ============================================================
+   PRIZES
+   weight = probability (higher = more common)
+   type: 'loss'|'small'|'big'
+   'small' = user gets immediately
+   'big'   = needs admin approval
+   
+   PROFIT LOGIC:
+   - Each spin costs user 10 coins
+   - 'loss' (Try Again) has highest weight → admin keeps 10 coins
+   - Small prizes (Free Spin, 50 coins) cost admin less than spin price on average
+   - Big prizes (100+ coins, iPhone, Bike) need admin approval
+     → admin can control payouts manually
+============================================================ */
+const PRIZES=[
+  {id:0, label:'Try Again', emoji:'😢', coins:0,  fs:0, type:'loss',  color:'#555', bg:'#111', w:34},
+  {id:1, label:'Try Again', emoji:'😢', coins:0,  fs:0, type:'loss',  color:'#444', bg:'#0D0D0D', w:28},
+  {id:2, label:'1 Free Spin',emoji:'🆓',coins:0,  fs:1, type:'small', color:'#00E676', bg:'#003322', w:12},
+  {id:3, label:'3 Free Spins',emoji:'🎁',coins:0, fs:3, type:'small', color:'#00B0FF', bg:'#00142E', w:4},
+  {id:4, label:'50 Coins',  emoji:'🪙', coins:50,  fs:0, type:'small', color:'#FFD700', bg:'#2E2000', w:10},
+  {id:5, label:'100 Coins', emoji:'🪙', coins:100, fs:0, type:'big',   color:'#FFA500', bg:'#2E1800', w:5},
+  {id:6, label:'200 Coins', emoji:'🪙', coins:200, fs:0, type:'big',   color:'#FF8C00', bg:'#2E1200', w:3},
+  {id:7, label:'500 Coins', emoji:'💰', coins:500, fs:0, type:'big',   color:'#FF6B00', bg:'#2E0C00', w:2},
+  {id:8, label:'1000 Coins',emoji:'💰', coins:1000,fs:0, type:'big',   color:'#FF2D55', bg:'#2E0010', w:1},
+  {id:9, label:'5000 Coins',emoji:'💎', coins:5000,fs:0, type:'big',   color:'#E040FB', bg:'#1A0030', w:0.5},
+  {id:10,label:'iPhone 12', emoji:'📱', coins:0,   fs:0, type:'big',   color:'#00B0FF', bg:'#00142A', w:0.3},
+  {id:11,label:'Honda 70',  emoji:'🏍️', coins:0,   fs:0, type:'big',   color:'#FF2D55', bg:'#200008', w:0.2},
+];
+const N=PRIZES.length;
+const SLICE=(2*Math.PI)/N;
+
+const PKGS=[
+  {price:'Rs. 100', amount:100, coins:200,  bonus:'',           lbl:'Starter'},
+  {price:'Rs. 250', amount:250, coins:600,  bonus:'+50 Bonus!', lbl:'Popular'},
+  {price:'Rs. 500', amount:500, coins:1400, bonus:'+200 Bonus!',lbl:'Value'},
+  {price:'Rs. 1000',amount:1000,coins:3000, bonus:'+500 Bonus!',lbl:'Premium'},
+];
+
+/* ============================================================
+   STATE
+============================================================ */
+let users=JSON.parse(localStorage.getItem('ls_u')||'{}');
+let adm=JSON.parse(localStorage.getItem('ls_a')||'{"totalDep":0,"totalWd":0,"spins":0,"earned":0,"depReqs":[],"wdReqs":[],"bigWins":[]}');
+let cu=JSON.parse(localStorage.getItem('ls_cu')||'null'); // current user email
+let selPkg=null, depMeth='easypaisa', spinning=false, angle=0, lastSeg=-1;
+
+const sU=()=>localStorage.setItem('ls_u',JSON.stringify(users));
+const sA=()=>localStorage.setItem('ls_a',JSON.stringify(adm));
+const gU=()=>users[cu];
+
+/* ============================================================
+   SCREEN HELPERS
+============================================================ */
+function SS(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
+
+/* ============================================================
+   AUTH
+============================================================ */
+function doLogin(){
+  const e=document.getElementById('liE').value.trim(),p=document.getElementById('liP').value;
+  document.getElementById('liErr').textContent='';
+  if(!e||!p){document.getElementById('liErr').textContent='Sab fields bharein!';return;}
+  if(e===ADMIN_EMAIL&&p===ADMIN_PASS){cu='__admin__';localStorage.setItem('ls_cu',JSON.stringify(cu));goAdmin();return;}
+  const u=users[e];
+  if(!u||u.password!==p){document.getElementById('liErr').textContent='Email ya password galat!';return;}
+  cu=e;localStorage.setItem('ls_cu',JSON.stringify(cu));enterGame();
+}
+function doReg(){
+  const n=document.getElementById('rN').value.trim(),e=document.getElementById('rE').value.trim(),p=document.getElementById('rP').value;
+  document.getElementById('rErr').textContent='';document.getElementById('rOk').textContent='';
+  if(!n||!e||!p){document.getElementById('rErr').textContent='Sab fields bharein!';return;}
+  if(p.length<6){document.getElementById('rErr').textContent='Password 6+ characters!';return;}
+  if(users[e]){document.getElementById('rErr').textContent='Email pehle se registered!';return;}
+  users[e]={name:n,email:e,password:p,coins:100,fs:1,hist:[],depReqs:[],wdReqs:[]};
+  sU();document.getElementById('rOk').textContent='✅ Account bana! 100 welcome coins mile!';
+  setTimeout(()=>SS('loginScreen'),1500);
+}
+function doLogout(){cu=null;localStorage.removeItem('ls_cu');SS('loginScreen');}
+
+/* ============================================================
+   ENTER GAME
+============================================================ */
+function enterGame(){
+  SS('gameScreen');
+  document.getElementById('adminNavBtn').style.display='none';
+  drawWheel(angle);
+  updUI();renderPkgs();renderLegend();renderHist();renderWds();renderDepReqs();
+}
+function backToGame(){if(cu==='__admin__'){goAdmin();}else{enterGame();}}
+
+/* ============================================================
+   ADMIN
+============================================================ */
+function goAdmin(){
+  SS('adminScreen');
+  renderAStats();renderADeps();renderAWds();renderABW();renderAUsers();
+}
+
+/* ============================================================
+   UI UPDATE
+============================================================ */
+function updUI(){
+  const u=gU();if(!u)return;
+  ['topC','depC','wdC'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=(u.coins||0).toLocaleString();});
+  const b=document.getElementById('fsBadge');
+  if((u.fs||0)>0){b.style.display='inline-flex';document.getElementById('fsN').textContent=u.fs;}
+  else b.style.display='none';
+}
+
+/* ============================================================
+   TABS
+============================================================ */
+function sT(name,el){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-c').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');document.getElementById('tc-'+name).classList.add('active');
+  if(name==='history')renderHist();
+  if(name==='withdraw'){renderWds();updUI();}
+  if(name==='deposit'){renderDepReqs();updUI();}
+}
+function sAT(name,el){
+  document.querySelectorAll('.at').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.atc').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');document.getElementById('atc-'+name).classList.add('active');
+}
+function updateWL(){
+  const m=document.getElementById('wMeth').value;
+  const lbs={easypaisa:'📞 Easypaisa Number',jazzcash:'📞 JazzCash Number',bank:'🏦 IBAN / Account'};
+  document.getElementById('wNL').textContent=lbs[m];
+}
+function calcWd(){
+  const v=parseInt(document.getElementById('wAmt').value)||0;
+  document.getElementById('wdPKR').textContent=v>=500?`= Rs.${Math.floor(v/10)} milenge`:'';
+}
+
+/* ============================================================
+   WHEEL DRAWING
+   
+   The wheel canvas rotates. The pointer (triangle SVG) is FIXED at top.
+   Top of canvas = angle -PI/2 in unit-circle terms.
+   
+   When canvas rotation = `angle`, the segment AT THE TOP is:
+     segIndex = floor( ((-angle - PI/2 + 2PI*k) % 2PI) / SLICE )
+   
+   We compute this correctly in getTopSegment().
+============================================================ */
+function drawWheel(rot){
+  const cv=document.getElementById('wcanvas');
+  if(!cv)return;
+  const ctx=cv.getContext('2d'),cx=150,cy=150,r=146;
+  ctx.clearRect(0,0,300,300);
+
+  for(let i=0;i<N;i++){
+    const p=PRIZES[i];
+    const sA=rot+i*SLICE, eA=sA+SLICE;
+    // Slice background
+    ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,sA,eA);ctx.closePath();
+    ctx.fillStyle=p.bg;ctx.fill();
+    ctx.strokeStyle='rgba(255,215,0,.2)';ctx.lineWidth=1;ctx.stroke();
+
+    // Text + emoji
+    ctx.save();
+    ctx.translate(cx,cy);
+    ctx.rotate(sA+SLICE/2);
+    // emoji at outer edge
+    ctx.textAlign='right';
+    ctx.font='12px serif';
+    ctx.fillStyle=p.color;
+    ctx.shadowColor=p.color;ctx.shadowBlur=4;
+    ctx.fillText(p.emoji,r-4,5);
+    // label
+    ctx.shadowBlur=0;
+    ctx.font='bold 8.5px Nunito,sans-serif';
+    ctx.fillStyle='rgba(255,255,255,.92)';
+    const words=p.label.split(' ');
+    if(words.length===1){ctx.fillText(p.label,r-18,5);}
+    else{ctx.fillText(words[0],r-18,-1);ctx.fillText(words.slice(1).join(' '),r-18,9);}
+    ctx.restore();
+  }
+
+  // Outer border
+  ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);
+  ctx.strokeStyle='rgba(255,215,0,.55)';ctx.lineWidth=3;ctx.stroke();
+  // Center circle (covers behind button)
+  ctx.beginPath();ctx.arc(cx,cy,30,0,Math.PI*2);
+  ctx.fillStyle='#0D0D1A';ctx.fill();
+  ctx.strokeStyle='rgba(255,215,0,.4)';ctx.lineWidth=2;ctx.stroke();
+}
+
+/* 
+  getTopSegment(angle):
+  The pointer is at the PHYSICAL TOP of the canvas (12 o'clock).
+  In canvas coords, top = angle = -PI/2 from center.
+  When wheel has been rotated by `angle`, segment i occupies angles [angle+i*SLICE, angle+(i+1)*SLICE].
+  The pointer is at world angle = -PI/2.
+  So we find i where: angle + i*SLICE <= -PI/2 (mod 2PI) < angle + (i+1)*SLICE
+  Equivalently: i = floor( (-PI/2 - angle) / SLICE ) mod N
+*/
+function getTopSegment(a){
+  const normalized=(((-Math.PI/2-a)%(Math.PI*2))+(Math.PI*2))%(Math.PI*2);
+  return Math.floor(normalized/SLICE)%N;
+}
+
+/* ============================================================
+   SPIN
+============================================================ */
+function doSpin(){
+  if(spinning)return;
+  // Unlock audio context
+  try{gAC().resume();}catch(e){}
+  const u=gU();
+  let usedFree=false;
+  if((u.fs||0)>0){usedFree=true;u.fs--;}
+  else if((u.coins||0)>=10){u.coins-=10;}
+  else{showToast('⚠️ Kam coins! Deposit karein.');sT('deposit',document.querySelectorAll('.tab')[1]);return;}
+
+  adm.spins=(adm.spins||0)+1;
+  if(!usedFree)adm.earned=(adm.earned||0)+10;
+  sU();sA();updUI();
+  spinning=true;
+  const btn=document.getElementById('spinBtn');
+  btn.disabled=true;btn.textContent='...';
+
+  // Choose prize based on weights
+  const prizeIdx=weightedRand();
+
+  // Compute how much to spin so that prizeIdx ends under pointer
+  // Target: getTopSegment(finalAngle) === prizeIdx
+  // finalAngle = angle + delta
+  // getTopSegment(angle+delta) = floor( (-PI/2 - angle - delta) / SLICE ) % N = prizeIdx
+  // -PI/2 - angle - delta = prizeIdx*SLICE + offset  where 0 <= offset < SLICE
+  // delta = -PI/2 - angle - prizeIdx*SLICE - offset
+  // We want delta > 0 (spin forward), so add enough full rotations
+  const extraRounds=5+Math.floor(Math.random()*3);
+  // Center of prize segment under pointer
+  const targetAngleAtTop=-Math.PI/2-(prizeIdx*SLICE+SLICE/2);
+  // delta so that final angle puts prize center at top
+  let delta=(targetAngleAtTop-angle)%(Math.PI*2);
+  // Make delta positive and add extra rounds
+  delta=((delta%(Math.PI*2))+(Math.PI*2))%(Math.PI*2);
+  if(delta<0.05)delta+=Math.PI*2;
+  delta+=Math.PI*2*extraRounds;
+  // Add small random offset within slice so pointer doesn't always hit exact center
+  const jitter=(Math.random()-.5)*SLICE*0.5;
+  delta+=jitter;
+
+  const dur=5000+Math.random()*1000;
+  const t0=performance.now();
+  const startAngle=angle;
+  lastSeg=-1;
+
+  function frame(now){
+    const elapsed=now-t0;
+    const prog=Math.min(elapsed/dur,1);
+    const eased=easeOut(prog);
+    const curAngle=startAngle+delta*eased;
+    drawWheel(curAngle);
+
+    // Tick on segment change
+    const seg=getTopSegment(curAngle);
+    if(seg!==lastSeg){
+      if((1-eased)>0.04)playTick();
+      lastSeg=seg;
+    }
+
+    if(prog<1){requestAnimationFrame(frame);}
+    else{
+      angle=startAngle+delta;
+      // Verify which segment is actually at top
+      const actualIdx=getTopSegment(angle);
+      spinning=false;
+      btn.disabled=false;btn.textContent='SPIN!';
+      drawWheel(angle);
+      showResult(PRIZES[actualIdx]);
+      sU();sA();updUI();
+    }
+  }
+  requestAnimationFrame(frame);
+}
+
+function weightedRand(){
+  const tot=PRIZES.reduce((a,p)=>a+p.w,0);
+  let r=Math.random()*tot;
+  for(let i=0;i<N;i++){r-=PRIZES[i].w;if(r<=0)return i;}
+  return 0;
+}
+function easeOut(t){return 1-Math.pow(1-t,4);}
+
+/* ============================================================
+   SHOW RESULT
+============================================================ */
+function showResult(prize){
+  const u=gU();
+  let em=prize.emoji,title='',txt='',needsApproval=false;
+
+  if(prize.type==='loss'){
+    title='Agli Baar 😢';txt='Qismat ne sath nahi diya. Dobara try karein!';
+    addH(prize.label,0,prize.emoji);playLose();
+
+  }else if(prize.type==='small'){
+    title='🎉 Mubarak!';
+    if(prize.fs>0){
+      u.fs=(u.fs||0)+prize.fs;
+      txt=`Aapko <strong>🆓 ${prize.fs} Free Spin(s)</strong> mile!`;
+    }else{
+      u.coins=(u.coins||0)+prize.coins;
+      txt=`Aapko <strong>🪙 ${prize.coins} Coins</strong> mile!`;
+    }
+    addH(prize.label,prize.coins||prize.fs,prize.emoji);playWin();
+
+  }else if(prize.type==='big'){
+    needsApproval=true;
+    title='🎊 Aap Jeete!';
+    em='🎊';
+    if(prize.coins>0)txt=`Aapne <strong>💰 ${prize.coins.toLocaleString()} Coins</strong> jeete!`;
+    else if(prize.emoji==='📱')txt='Aapne <strong>📱 iPhone 12</strong> jeeta!';
+    else txt='Aapne <strong>🏍️ Honda 70</strong> jeeta!';
+
+    if(!adm.bigWins)adm.bigWins=[];
+    adm.bigWins.unshift({
+      id:'BW'+Date.now(),
+      uEmail:cu,uName:u.name,
+      prize:prize.label,pCoins:prize.coins,pEmoji:prize.emoji,
+      status:'pending',
+      time:new Date().toLocaleString('ur-PK')
+    });
+    addH(prize.label+' ⏳Pending',0,prize.emoji);
+    playJackpot();spawnConf();sA();
+  }
+
+  document.getElementById('mEmo').textContent=em;
+  document.getElementById('mTit').textContent=title;
+  document.getElementById('mPrize').innerHTML=txt;
+  document.getElementById('aNoteDiv').style.display=needsApproval?'block':'none';
+  document.getElementById('rModal').classList.add('active');
+  sU();updUI();
+}
+
+function addH(label,coins,icon){
+  const u=gU(),now=new Date();
+  u.hist.unshift({label,coins,icon,t:now.toLocaleTimeString('ur-PK',{hour:'2-digit',minute:'2-digit'})});
+  if(u.hist.length>35)u.hist.pop();sU();
+}
+function closeModal(){
+  document.getElementById('rModal').classList.remove('active');
+  document.getElementById('mInner').querySelectorAll('.conf').forEach(c=>c.remove());
+  renderHist();
+}
+function spawnConf(){
+  const m=document.getElementById('mInner');
+  const cols=['#FFD700','#FF2D55','#00E676','#00B0FF','#7B2FBE','#FF6B00'];
+  for(let i=0;i<38;i++){const c=document.createElement('div');c.className='conf';c.style.cssText=`left:${Math.random()*100}%;top:0;background:${cols[i%cols.length]};animation-delay:${Math.random()*.7}s;animation-duration:${1+Math.random()*.8}s;transform:rotate(${Math.random()*360}deg);`;m.appendChild(c);}
+}
+
+/* ============================================================
+   DEPOSIT
+============================================================ */
+function renderPkgs(){
+  document.getElementById('pkgGrid').innerHTML=PKGS.map((p,i)=>`
+    <div class="pkg-card" onclick="selPk(${i},this)">
+      <div class="pkg-price">${p.price}</div>
+      <div class="pkg-coins">🪙 ${p.coins} Coins</div>
+      ${p.bonus?`<div class="pkg-bonus">${p.bonus}</div>`:''}
+      <div style="font-size:.65rem;color:rgba(255,255,255,.3);margin-top:2px">${p.lbl}</div>
+    </div>`).join('');
+}
+function selPk(i,el){
+  document.querySelectorAll('.pkg-card').forEach(c=>c.classList.remove('sel'));
+  el.classList.add('sel');selPkg=i;
+  const p=PKGS[i];
+  document.getElementById('selPkgLbl').textContent=p.price+' → 🪙'+p.coins;
+  document.getElementById('ds1a').textContent=p.price;
+  document.getElementById('dFErr').textContent='';document.getElementById('dFOk').textContent='';
+  document.getElementById('txn').value='';document.getElementById('sNum').value='';
+  updDepMeth();
+  document.getElementById('payBox').style.display='block';
+  setTimeout(()=>document.getElementById('payBox').scrollIntoView({behavior:'smooth',block:'nearest'}),80);
+}
+function selM(el,m){
+  document.querySelectorAll('.mt').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');depMeth=m;updDepMeth();
+}
+function updDepMeth(){
+  const a=ADMIN_ACCS[depMeth];
+  document.getElementById('abl').textContent=a.label;
+  document.getElementById('abn').textContent=a.number;
+  document.getElementById('ds1m').textContent=a.method;
+  document.getElementById('sMl').textContent=a.method;
+  if(selPkg!==null)document.getElementById('ds1a').textContent=PKGS[selPkg].price;
+}
+function copyNum(){
+  const n=document.getElementById('abn').textContent;
+  navigator.clipboard.writeText(n).then(()=>showToast('📋 Copy Ho Gaya!')).catch(()=>showToast(n));
+}
+function cancelDep(){
+  document.getElementById('payBox').style.display='none';
+  document.querySelectorAll('.pkg-card').forEach(c=>c.classList.remove('sel'));selPkg=null;
+}
+function submitDep(){
+  const sender=document.getElementById('sNum').value.trim();
+  const txnId=document.getElementById('txn').value.trim();
+  document.getElementById('dFErr').textContent='';document.getElementById('dFOk').textContent='';
+  if(selPkg===null){showToast('Package chunein!');return;}
+  if(!sender){document.getElementById('dFErr').textContent='⚠️ Apna number daalna zaroori!';return;}
+  if(!txnId){document.getElementById('dFErr').textContent='⚠️ TxnID daalna zaroori!';return;}
+  const u=gU(),pkg=PKGS[selPkg];
+  if(u.depReqs.some(r=>r.txnId===txnId)){document.getElementById('dFErr').textContent='⚠️ Yeh TxnID pehle use!';return;}
+  const req={id:'D'+Date.now(),txnId,sNum:sender,meth:depMeth,pkg:pkg.price,coins:pkg.coins,amt:pkg.amount,uEmail:cu,uName:u.name,status:'pending',t:new Date().toLocaleString('ur-PK')};
+  u.depReqs.unshift(req);adm.depReqs.unshift(req);sU();sA();
+  document.getElementById('dFOk').textContent='✅ Request submit! Admin jald coins add karega.';
+  showToast('✅ Deposit Request Submit!');
+  setTimeout(()=>{cancelDep();renderDepReqs();},1500);
+}
+function renderDepReqs(){
+  const u=gU();
+  if(!u.depReqs||u.depReqs.length===0){document.getElementById('pendSec').style.display='none';return;}
+  document.getElementById('pendSec').style.display='block';
+  document.getElementById('pendList').innerHTML=u.depReqs.slice(0,10).map(r=>`
+    <div class="hi" style="border-left-color:${r.status==='approved'?'var(--green)':r.status==='rejected'?'var(--red)':'var(--gold2)'}">
+      <div class="hic">${r.meth==='jazzcash'?'📱':r.meth==='easypaisa'?'💚':'🏦'}</div>
+      <div class="hii"><div class="hipr">${r.pkg} → 🪙${r.coins}</div><div class="hit">TxnID: ${r.txnId} | ${r.t}</div></div>
+      <span class="sb ${r.status==='approved'?'sa':r.status==='rejected'?'sr':'sp'}">${r.status==='pending'?'⏳':r.status==='approved'?'✅':'❌'}</span>
+    </div>`).join('');
+}
+
+/* ============================================================
+   WITHDRAW
+============================================================ */
+function submitWd(){
+  const u=gU();
+  const amt=parseInt(document.getElementById('wAmt').value)||0;
+  const meth=document.getElementById('wMeth').value;
+  const num=document.getElementById('wNum').value.trim();
+  const name=document.getElementById('wName').value.trim();
+  document.getElementById('wErr').textContent='';document.getElementById('wOk').textContent='';
+  if(amt<500){document.getElementById('wErr').textContent='⚠️ Minimum 500 coins!';return;}
+  if(amt>(u.coins||0)){document.getElementById('wErr').textContent='⚠️ Itne coins nahi!';return;}
+  if(!num){document.getElementById('wErr').textContent='⚠️ Account number daalein!';return;}
+  if(!name){document.getElementById('wErr').textContent='⚠️ Account name daalein!';return;}
+  const pkr=Math.floor(amt/10);
+  u.coins-=amt;
+  const req={id:'W'+Date.now(),amt,pkr,meth,number:num,name,uEmail:cu,uName:u.name,status:'pending',t:new Date().toLocaleString('ur-PK')};
+  u.wdReqs.unshift(req);adm.wdReqs.unshift(req);sU();sA();updUI();
+  document.getElementById('wOk').textContent=`✅ Rs.${pkr} ki request submit! Admin process karega.`;
+  document.getElementById('wAmt').value='';document.getElementById('wNum').value='';document.getElementById('wName').value='';
+  document.getElementById('wdPKR').textContent='';
+  showToast(`✅ Withdraw: Rs.${pkr}`);renderWds();
+}
+function renderWds(){
+  const u=gU();
+  if(!u.wdReqs||u.wdReqs.length===0){document.getElementById('myWdSec').style.display='none';return;}
+  document.getElementById('myWdSec').style.display='block';
+  document.getElementById('myWdList').innerHTML=u.wdReqs.slice(0,10).map(r=>`
+    <div class="wr-item" style="border-left-color:${r.status==='approved'?'var(--green)':r.status==='rejected'?'var(--red)':'var(--gold)'}">
+      <div style="font-size:1.35rem">${r.meth==='jazzcash'?'📱':r.meth==='easypaisa'?'💚':'🏦'}</div>
+      <div class="wri"><div class="wra">💸 Rs.${r.pkr} (${r.amt} coins)</div><div class="wrd">${r.meth}: ${r.number} — ${r.name}</div><div class="wrd">${r.t}</div></div>
+      <span class="sb ${r.status==='approved'?'sa':r.status==='rejected'?'sr':'sp'}">${r.status==='pending'?'⏳':r.status==='approved'?'✅':'❌'}</span>
+    </div>`).join('');
+}
+
+/* ============================================================
+   HISTORY
+============================================================ */
+function renderHist(){
+  const u=gU(),el=document.getElementById('histList');
+  if(!u.hist||u.hist.length===0){el.innerHTML='<div class="empty">Abhi tak koi spin nahi 🎯</div>';return;}
+  el.innerHTML=u.hist.map(h=>`
+    <div class="hi"><div class="hic">${h.icon}</div><div class="hii"><div class="hipr">${h.label}</div><div class="hit">${h.t}</div></div>${h.coins>0?`<div class="hicn">+${h.coins}</div>`:''}</div>`).join('');
+}
+
+/* ============================================================
+   PRIZES LEGEND
+============================================================ */
+function renderLegend(){
+  const seen=new Set();
+  const uniq=PRIZES.filter(p=>{if(seen.has(p.label))return false;seen.add(p.label);return true;});
+  document.getElementById('pleg').innerHTML=uniq.map(p=>`
+    <div class="pi">
+      <div class="pd" style="background:${p.color}"></div>
+      <span>${p.emoji} ${p.label}</span>
+      ${p.type==='big'?'<span style="font-size:.6rem;color:var(--gold2);margin-left:auto">Admin✓</span>':''}
+    </div>`).join('');
+}
+
+/* ============================================================
+   ADMIN PANEL
+============================================================ */
+function renderAStats(){
+  const tu=Object.keys(users).length;
+  const tc=Object.values(users).reduce((a,u)=>a+(u.coins||0),0);
+  const pbw=(adm.bigWins||[]).filter(w=>w.status==='pending').length;
+  document.getElementById('aStats').innerHTML=`
+    <div class="asc"><div class="asv">${tu}</div><div class="asl">Users</div></div>
+    <div class="asc"><div class="asv">${adm.spins||0}</div><div class="asl">Total Spins</div></div>
+    <div class="asc"><div class="asv">Rs.${adm.totalDep||0}</div><div class="asl">Total Deposit</div></div>
+    <div class="asc"><div class="asv">Rs.${adm.totalWd||0}</div><div class="asl">Total Withdraw</div></div>
+    <div class="asc"><div class="asv">${(adm.earned||0)*1}</div><div class="asl">Earned (coins)</div></div>
+    <div class="asc"><div class="asv">${pbw}</div><div class="asl">Big Win Pending</div></div>`;
+}
+function renderADeps(){
+  const reqs=(adm.depReqs||[]).slice(0,40);
+  if(!reqs.length){document.getElementById('aDeps').innerHTML='<div class="empty">Koi deposit nahi</div>';return;}
+  document.getElementById('aDeps').innerHTML=reqs.map(r=>`
+    <div class="ari">
+      <h4>${r.uName||r.uEmail} — ${r.pkg} → 🪙${r.coins}</h4>
+      <p>Method: ${r.meth} | From: ${r.sNum}</p>
+      <p>TxnID: <strong style="color:var(--gold)">${r.txnId}</strong></p>
+      <p>${r.t}</p>
+      ${r.status==='pending'?`<div class="arbtns"><button class="apbtn" onclick="appDep('${r.id}')">✅ Approve</button><button class="arbtn" onclick="rejDep('${r.id}')">❌ Reject</button></div>`:`<span class="sb ${r.status==='approved'?'sa':'sr'}" style="margin-top:6px;display:inline-block">${r.status==='approved'?'✅ Approved':'❌ Rejected'}</span>`}
+    </div>`).join('');
+}
+function appDep(id){
+  const r=adm.depReqs.find(x=>x.id===id);if(!r||r.status!=='pending')return;
+  r.status='approved';
+  if(users[r.uEmail]){users[r.uEmail].coins=(users[r.uEmail].coins||0)+r.coins;const ur=users[r.uEmail].depReqs?.find(x=>x.id===id);if(ur)ur.status='approved';}
+  adm.totalDep=(adm.totalDep||0)+r.amt;
+  sU();sA();showToast(`✅ Deposit Approved! 🪙${r.coins}`);renderADeps();renderAStats();
+}
+function rejDep(id){
+  const r=adm.depReqs.find(x=>x.id===id);if(!r||r.status!=='pending')return;
+  r.status='rejected';
+  if(users[r.uEmail]){const ur=users[r.uEmail].depReqs?.find(x=>x.id===id);if(ur)ur.status='rejected';}
+  sU();sA();showToast('❌ Rejected');renderADeps();
+}
+function renderAWds(){
+  const reqs=(adm.wdReqs||[]).slice(0,40);
+  if(!reqs.length){document.getElementById('aWds').innerHTML='<div class="empty">Koi withdraw nahi</div>';return;}
+  document.getElementById('aWds').innerHTML=reqs.map(r=>`
+    <div class="ari">
+      <h4>${r.uName||r.uEmail} — Rs.${r.pkr} (${r.amt} coins)</h4>
+      <p>Method: ${r.meth} | To: ${r.number}</p>
+      <p>Name: ${r.name} | ${r.t}</p>
+      ${r.status==='pending'?`<div class="arbtns"><button class="apbtn" onclick="appWd('${r.id}')">✅ Send Kiya</button><button class="arbtn" onclick="rejWd('${r.id}')">❌ Reject</button></div>`:`<span class="sb ${r.status==='approved'?'sa':'sr'}" style="margin-top:6px;display:inline-block">${r.status==='approved'?'✅ Done':'❌ Rejected'}</span>`}
+    </div>`).join('');
+}
+function appWd(id){
+  const r=adm.wdReqs.find(x=>x.id===id);if(!r||r.status!=='pending')return;
+  r.status='approved';
+  if(users[r.uEmail]){const ur=users[r.uEmail].wdReqs?.find(x=>x.id===id);if(ur)ur.status='approved';}
+  adm.totalWd=(adm.totalWd||0)+r.pkr;
+  sU();sA();showToast(`✅ Withdraw Done! Rs.${r.pkr}`);renderAWds();renderAStats();
+}
+function rejWd(id){
+  const r=adm.wdReqs.find(x=>x.id===id);if(!r||r.status!=='pending')return;
+  r.status='rejected';
+  if(users[r.uEmail]){users[r.uEmail].coins=(users[r.uEmail].coins||0)+r.amt;const ur=users[r.uEmail].wdReqs?.find(x=>x.id===id);if(ur)ur.status='rejected';}
+  sU();sA();showToast(`❌ Rejected — ${r.amt} coins refund!`);renderAWds();
+}
+function renderABW(){
+  const wins=(adm.bigWins||[]).slice(0,40);
+  if(!wins.length){document.getElementById('aBWins').innerHTML='<div class="empty">Koi pending big win nahi</div>';return;}
+  document.getElementById('aBWins').innerHTML=wins.map(w=>`
+    <div class="ari" style="border-left-color:${w.status==='approved'?'var(--green)':w.status==='rejected'?'var(--red)':'var(--gold)'}">
+      <h4 style="color:var(--gold)">${w.pEmoji} ${w.prize}</h4>
+      <p>User: <strong style="color:#fff">${w.uName}</strong> (${w.uEmail})</p>
+      <p>${w.time}</p>
+      ${w.status==='pending'?`<div class="arbtns"><button class="apbtn" onclick="appBW('${w.id}')">✅ Approve & Add</button><button class="arbtn" onclick="rejBW('${w.id}')">❌ Reject</button></div>`:`<span class="sb ${w.status==='approved'?'sa':'sr'}" style="margin-top:6px;display:inline-block">${w.status==='approved'?'✅ Approved':'❌ Rejected'}</span>`}
+    </div>`).join('');
+}
+function appBW(id){
+  const w=adm.bigWins.find(x=>x.id===id);if(!w||w.status!=='pending')return;
+  w.status='approved';
+  if(users[w.uEmail]&&w.pCoins>0)users[w.uEmail].coins=(users[w.uEmail].coins||0)+w.pCoins;
+  sU();sA();showToast(`✅ ${w.prize} Approved!`);renderABW();renderAStats();
+}
+function rejBW(id){
+  const w=adm.bigWins.find(x=>x.id===id);if(!w||w.status!=='pending')return;
+  w.status='rejected';sA();showToast('❌ Rejected');renderABW();
+}
+function renderAUsers(){
+  const us=Object.values(users);
+  if(!us.length){document.getElementById('aUsers').innerHTML='<div class="empty">Koi user nahi</div>';return;}
+  document.getElementById('aUsers').innerHTML=us.map(u=>`
+    <div class="ui">
+      <div class="uit"><span class="un">👤 ${u.name}</span><span class="ucb">🪙 ${u.coins||0}</span></div>
+      <div style="font-size:.7rem;color:rgba(255,255,255,.38)">${u.email}</div>
+      <div class="uas">
+        <button class="uab uaa" onclick="aAdd('${u.email}')">+ Coins Add</button>
+        <button class="uab uar" onclick="aSub('${u.email}')">- Coins Hatao</button>
+      </div>
+    </div>`).join('');
+}
+function aAdd(email){const a=parseInt(prompt(`${email}\nKitne coins add karein?`));if(!a||a<=0)return;users[email].coins=(users[email].coins||0)+a;sU();showToast(`✅ ${a} coins add!`);renderAUsers();renderAStats();}
+function aSub(email){const a=parseInt(prompt(`${email}\nKitne coins hatayein?`));if(!a||a<=0)return;users[email].coins=Math.max(0,(users[email].coins||0)-a);sU();showToast(`✅ ${a} coins hataey!`);renderAUsers();renderAStats();}
+
+/* ============================================================
+   TOAST
+============================================================ */
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800);}
+
+/* ============================================================
+   INIT
+============================================================ */
+(()=>{
+  if(cu&&cu!=='__admin__'&&users[cu]){enterGame();}
+  else if(cu==='__admin__'){goAdmin();}
+  else{SS('loginScreen');}
+  setTimeout(()=>drawWheel(0),60);
+})();
+</script>
+</body>
+</html>
