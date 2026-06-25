@@ -1,1 +1,463 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Lucky Draw</title>
+<style>
+  :root{
+    --bg:#0a0e17;--card:#121828;--card2:#1a2236;
+    --accent:#22c55e;--accent2:#16a34a;--gold:#fbbf24;
+    --text:#e7ecf5;--muted:#8b96ab;--danger:#ef4444;--border:#252e44;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{
+    font-family:'Segoe UI',system-ui,sans-serif;
+    background:var(--bg);color:var(--text);
+    min-height:100vh;padding-bottom:40px;
+  }
+  .wrap{max-width:520px;margin:0 auto;padding:20px 16px;}
+  h1{font-size:20px;margin-bottom:4px;}
+  .sub{color:var(--muted);font-size:12px;margin-bottom:20px;}
+
+  /* Login */
+  .login-box{
+    max-width:340px;margin:80px auto;text-align:center;
+  }
+  .login-box input{
+    width:100%;background:var(--card);border:1px solid var(--border);
+    border-radius:10px;padding:12px;color:var(--text);font-size:14px;margin-top:14px;
+  }
+  .login-box button{
+    width:100%;margin-top:14px;background:linear-gradient(90deg,var(--accent2),var(--accent));
+    color:#fff;border:none;border-radius:10px;padding:12px;font-weight:700;cursor:pointer;
+  }
+
+  .tabs{display:flex;gap:8px;margin-bottom:18px;overflow-x:auto;}
+  .tab{
+    background:var(--card);border:1px solid var(--border);color:var(--muted);
+    padding:8px 14px;border-radius:20px;font-size:13px;white-space:nowrap;cursor:pointer;
+  }
+  .tab.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+
+  .panel{display:none;}
+  .panel.active{display:block;}
+
+  .entry-card{
+    background:var(--card);border:1px solid var(--border);
+    border-radius:14px;padding:14px;margin-bottom:12px;
+  }
+  .entry-card .row1{display:flex;justify-content:space-between;align-items:center;}
+  .entry-card .name{font-weight:700;font-size:14px;}
+  .entry-card .amt{color:var(--gold);font-size:13px;font-weight:700;}
+  .entry-card .phone{color:var(--muted);font-size:12px;margin-top:2px;}
+  .entry-card img{
+    width:100%;max-height:220px;object-fit:contain;
+    border-radius:10px;margin-top:10px;background:#000;cursor:pointer;
+  }
+  .status-tag{
+    font-size:11px;padding:3px 9px;border-radius:20px;
+  }
+  .status-tag.pending{background:rgba(251,191,36,0.15);color:var(--gold);}
+  .status-tag.approved{background:rgba(34,197,94,0.15);color:var(--accent);}
+  .status-tag.rejected{background:rgba(239,68,68,0.15);color:var(--danger);}
+
+  .method-tag{
+    font-size:11px;padding:3px 9px;border-radius:20px;margin-left:6px;
+  }
+  .method-tag.easypaisa{background:rgba(34,197,94,0.15);color:#22c55e;}
+  .method-tag.sadapay{background:rgba(124,58,237,0.15);color:#a78bfa;}
+  .method-tag.nayapay{background:rgba(8,145,178,0.15);color:#22d3ee;}
+
+  .actions{display:flex;gap:8px;margin-top:12px;}
+  .actions button{
+    flex:1;border:none;border-radius:8px;padding:9px 0;font-size:13px;font-weight:600;cursor:pointer;
+  }
+  .btn-approve{background:rgba(34,197,94,0.15);color:var(--accent);}
+  .btn-reject{background:rgba(239,68,68,0.15);color:var(--danger);}
+  .btn-winner{background:linear-gradient(90deg,#f59e0b,var(--gold));color:#1a1300;}
+
+  .draw-card{
+    background:var(--card2);border:1px solid var(--border);
+    border-radius:14px;padding:16px;margin-bottom:14px;
+  }
+  .draw-card h3{font-size:16px;color:var(--gold);}
+  .draw-card .meta{font-size:12px;color:var(--muted);margin:6px 0 12px;}
+  .draw-card label{display:block;font-size:11px;color:var(--muted);margin:8px 0 4px;}
+  .draw-card input, .draw-card select{
+    width:100%;background:#0d1320;border:1px solid var(--border);
+    border-radius:8px;padding:9px 10px;color:var(--text);font-size:13px;
+  }
+  .draw-card .save-btn{
+    margin-top:12px;width:100%;background:linear-gradient(90deg,var(--accent2),var(--accent));
+    color:#fff;border:none;border-radius:8px;padding:10px;font-weight:700;cursor:pointer;
+  }
+
+  .empty{color:var(--muted);text-align:center;font-size:13px;padding:30px 0;}
+  .img-modal{
+    position:fixed;inset:0;background:rgba(0,0,0,0.9);
+    display:none;align-items:center;justify-content:center;z-index:99;padding:20px;
+  }
+  .img-modal.active{display:flex;}
+  .img-modal img{max-width:100%;max-height:90vh;border-radius:8px;}
+</style>
+</head>
+<body>
+
+<div class="login-box" id="loginBox">
+  <h1>🔒 Admin Login</h1>
+  <p class="sub">Enter password to continue</p>
+  <input type="password" id="passwordInput" placeholder="Admin password">
+  <button onclick="login()">Login</button>
+</div>
+
+<div class="wrap" id="adminPanel" style="display:none;">
+  <h1>🎯 Admin Panel</h1>
+  <p class="sub">Manage entries, prizes & winners</p>
+
+  <div class="tabs">
+    <div class="tab active" data-tab="pending" onclick="switchTab('pending')">Pending</div>
+    <div class="tab" data-tab="approved" onclick="switchTab('approved')">Approved</div>
+    <div class="tab" data-tab="draws" onclick="switchTab('draws')">Manage Draws</div>
+    <div class="tab" data-tab="winners" onclick="switchTab('winners')">Winners</div>
+    <div class="tab" data-tab="payments" onclick="switchTab('payments')">Payment Numbers</div>
+    <div class="tab" data-tab="settings" onclick="switchTab('settings')">⚙️ Settings</div>
+  </div>
+
+  <div class="panel active" id="panel-pending"></div>
+  <div class="panel" id="panel-approved"></div>
+  <div class="panel" id="panel-draws"></div>
+  <div class="panel" id="panel-winners"></div>
+  <div class="panel" id="panel-payments"></div>
+  <div class="panel" id="panel-settings"></div>
+</div>
+
+<div class="img-modal" id="imgModal" onclick="this.classList.remove('active')">
+  <img id="imgModalSrc">
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+/* ===================== CONFIG — EDIT THESE ===================== */
+const SUPABASE_URL = "https://sjwrvkgizhgmukunlsmt.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNqd3J2a2dpemhnbXVrdW5sc210Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIzNjcxOTMsImV4cCI6MjA5Nzk0MzE5M30.Q2M4mr3KD4q9gFB2eugVduZla4qFVUdsFqe9e7r1s14";
+const FALLBACK_ADMIN_PASSWORD = "LuckyDraw786"; // used only if no password is set in the database yet
+/* ================================================================ */
+
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+let allEntries = [];
+let allDraws = [];
+let allPaymentMethods = [];
+
+async function login(){
+  const val = document.getElementById('passwordInput').value;
+  const loginBtn = document.querySelector('.login-box button');
+  loginBtn.disabled = true;
+  loginBtn.textContent = 'Checking...';
+
+  let storedPassword = null;
+  try{
+    const { data } = await supabase.from('app_settings').select('value').eq('key', 'admin_password').maybeSingle();
+    storedPassword = data ? data.value : null;
+  }catch(e){ console.error(e); }
+
+  const correctPassword = storedPassword || FALLBACK_ADMIN_PASSWORD;
+
+  if(val === correctPassword){
+    sessionStorage.setItem('ld_admin_auth', '1');
+    document.getElementById('loginBox').style.display = 'none';
+    document.getElementById('adminPanel').style.display = 'block';
+    loadAll();
+  }else{
+    alert('Wrong password');
+    loginBtn.disabled = false;
+    loginBtn.textContent = 'Login';
+  }
+}
+
+if(sessionStorage.getItem('ld_admin_auth') === '1'){
+  document.getElementById('loginBox').style.display = 'none';
+  document.getElementById('adminPanel').style.display = 'block';
+  loadAll();
+}
+
+function switchTab(tab){
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-' + tab).classList.add('active');
+}
+
+async function loadAll(){
+  const [entriesRes, drawsRes, paymentsRes] = await Promise.all([
+    supabase.from('entries').select('*').order('created_at', {ascending:false}),
+    supabase.from('draws').select('*').order('amount', {ascending:true}),
+    supabase.from('payment_methods').select('*')
+  ]);
+  allEntries = entriesRes.data || [];
+  allDraws = drawsRes.data || [];
+  allPaymentMethods = paymentsRes.data || [];
+  renderPending();
+  renderApproved();
+  renderDraws();
+  renderWinnersTab();
+  renderPaymentMethods();
+  renderSettings();
+}
+
+function entryCardHtml(e, showActions){
+  let actionsHtml = '';
+  if(showActions === 'pending'){
+    actionsHtml = `
+      <div class="actions">
+        <button class="btn-approve" onclick="updateEntryStatus('${e.id}','approved')">✅ Approve</button>
+        <button class="btn-reject" onclick="updateEntryStatus('${e.id}','rejected')">❌ Reject</button>
+      </div>`;
+  } else if(showActions === 'approved'){
+    actionsHtml = `
+      <div class="actions">
+        <button class="btn-winner" onclick="markWinner('${e.id}', ${e.draw_amount})">🏆 Mark as Winner</button>
+        <button class="btn-reject" onclick="updateEntryStatus('${e.id}','rejected')">❌ Reject</button>
+      </div>`;
+  }
+  return `
+    <div class="entry-card">
+      <div class="row1">
+        <div>
+          <div class="name">${e.name} ${e.is_winner ? '🏆' : ''}</div>
+          <div class="phone">${e.phone}</div>
+        </div>
+        <div style="text-align:right;">
+          <div class="amt">Rs ${e.draw_amount}</div>
+          <span class="status-tag ${e.status}">${e.status}</span>
+          <span class="method-tag ${e.payment_method || 'easypaisa'}">${(e.payment_method || 'easypaisa')}</span>
+        </div>
+      </div>
+      ${e.screenshot_url ? `<img src="${e.screenshot_url}" onclick="viewImage('${e.screenshot_url}')">` : ''}
+      ${actionsHtml}
+    </div>
+  `;
+}
+
+function viewImage(src){
+  document.getElementById('imgModalSrc').src = src;
+  document.getElementById('imgModal').classList.add('active');
+}
+
+function renderPending(){
+  const list = allEntries.filter(e => e.status === 'pending');
+  const panel = document.getElementById('panel-pending');
+  panel.innerHTML = list.length ? list.map(e => entryCardHtml(e, 'pending')).join('') : `<div class="empty">No pending entries 🎉</div>`;
+}
+
+function renderApproved(){
+  const list = allEntries.filter(e => e.status === 'approved');
+  const panel = document.getElementById('panel-approved');
+  panel.innerHTML = list.length ? list.map(e => entryCardHtml(e, 'approved')).join('') : `<div class="empty">No approved entries yet</div>`;
+}
+
+function renderWinnersTab(){
+  const list = allEntries.filter(e => e.is_winner);
+  const panel = document.getElementById('panel-winners');
+  panel.innerHTML = list.length ? list.map(e => entryCardHtml(e, null)).join('') : `<div class="empty">No winners selected yet</div>`;
+}
+
+function renderDraws(){
+  const panel = document.getElementById('panel-draws');
+  panel.innerHTML = allDraws.map(d => {
+    const entryCount = allEntries.filter(e => e.draw_amount === d.amount && e.status === 'approved').length;
+    return `
+    <div class="draw-card">
+      <h3>Rs ${d.amount} Draw</h3>
+      <div class="meta">${entryCount} approved entries &middot; Status: ${d.status}</div>
+
+      <label>Prize Description</label>
+      <input type="text" id="prize_${d.amount}" value="${d.prize_text || ''}" placeholder="e.g. Samsung Earbuds">
+
+      <label>Draw Status</label>
+      <select id="status_${d.amount}">
+        <option value="open" ${d.status === 'open' ? 'selected':''}>Open (accepting entries)</option>
+        <option value="closed" ${d.status === 'closed' ? 'selected':''}>Closed (no new entries)</option>
+        <option value="completed" ${d.status === 'completed' ? 'selected':''}>Completed (winner announced)</option>
+      </select>
+
+      <label>Draw Opens On (10 days from start)</label>
+      <input type="datetime-local" id="opensAt_${d.amount}" value="${d.draw_opens_at ? toLocalInput(d.draw_opens_at) : ''}">
+
+      <button class="save-btn" onclick="saveDraw(${d.amount})">💾 Save Changes</button>
+      <button class="save-btn" style="margin-top:8px;background:linear-gradient(90deg,#374151,#4b5563);" onclick="startCountdownNow(${d.amount})">▶️ Start 10-Day Countdown Now</button>
+    </div>
+    `;
+  }).join('');
+}
+
+function toLocalInput(isoStr){
+  const d = new Date(isoStr);
+  const pad = n => String(n).padStart(2,'0');
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+async function saveDraw(amount){
+  const prize = document.getElementById(`prize_${amount}`).value;
+  const status = document.getElementById(`status_${amount}`).value;
+  const opensAtRaw = document.getElementById(`opensAt_${amount}`).value;
+  const opensAt = opensAtRaw ? new Date(opensAtRaw).toISOString() : null;
+
+  const { error } = await supabase.from('draws').update({
+    prize_text: prize,
+    status: status,
+    draw_opens_at: opensAt
+  }).eq('amount', amount);
+
+  if(error){ alert('Error saving: ' + error.message); return; }
+  alert('Saved!');
+  loadAll();
+}
+
+async function startCountdownNow(amount){
+  const opensAt = new Date(Date.now() + 10*24*60*60*1000).toISOString();
+  const { error } = await supabase.from('draws').update({ draw_opens_at: opensAt }).eq('amount', amount);
+  if(error){ alert('Error: ' + error.message); return; }
+  alert('10-day countdown started!');
+  loadAll();
+}
+
+const PAYMENT_METHOD_DEFS = [
+  { id: 'easypaisa', label: '📱 EasyPaisa' },
+  { id: 'sadapay', label: '💜 SadaPay' },
+  { id: 'nayapay', label: '🩵 NayaPay' }
+];
+
+function renderPaymentMethods(){
+  const panel = document.getElementById('panel-payments');
+  panel.innerHTML = PAYMENT_METHOD_DEFS.map(def => {
+    const existing = allPaymentMethods.find(p => p.method === def.id) || {};
+    const enabled = existing.enabled !== false; // default true if not set
+    return `
+    <div class="draw-card">
+      <h3>${def.label}</h3>
+      <div class="meta">${enabled ? 'Visible to users' : 'Hidden from users'}</div>
+
+      <label>Account Number</label>
+      <input type="text" id="pm_number_${def.id}" value="${existing.number || ''}" placeholder="03XXXXXXXXX">
+
+      <label>Account Holder Name</label>
+      <input type="text" id="pm_name_${def.id}" value="${existing.account_name || ''}" placeholder="e.g. Your Name">
+
+      <label>Show this method to users?</label>
+      <select id="pm_enabled_${def.id}">
+        <option value="true" ${enabled ? 'selected':''}>Yes, show it</option>
+        <option value="false" ${!enabled ? 'selected':''}>No, hide it</option>
+      </select>
+
+      <button class="save-btn" onclick="savePaymentMethod('${def.id}')">💾 Save ${def.label.replace(/^[^ ]+ /,'')}</button>
+    </div>
+    `;
+  }).join('');
+}
+
+async function savePaymentMethod(method){
+  const number = document.getElementById(`pm_number_${method}`).value.trim();
+  const accountName = document.getElementById(`pm_name_${method}`).value.trim();
+  const enabled = document.getElementById(`pm_enabled_${method}`).value === 'true';
+
+  const { error } = await supabase.from('payment_methods').upsert({
+    method: method,
+    number: number,
+    account_name: accountName,
+    enabled: enabled
+  }, { onConflict: 'method' });
+
+  if(error){ alert('Error saving: ' + error.message); return; }
+  alert('Saved!');
+  loadAll();
+}
+
+function renderSettings(){
+  const panel = document.getElementById('panel-settings');
+  panel.innerHTML = `
+    <div class="draw-card">
+      <h3>🔑 Change Admin Password</h3>
+      <div class="meta">This password is used to log into this admin panel.</div>
+
+      <label>Current Password</label>
+      <input type="password" id="currentPasswordInput" placeholder="Enter current password">
+
+      <label>New Password</label>
+      <input type="password" id="newPasswordInput" placeholder="Enter new password">
+
+      <label>Confirm New Password</label>
+      <input type="password" id="confirmPasswordInput" placeholder="Re-enter new password">
+
+      <button class="save-btn" onclick="changePassword()">💾 Update Password</button>
+    </div>
+  `;
+}
+
+async function changePassword(){
+  const current = document.getElementById('currentPasswordInput').value;
+  const newPass = document.getElementById('newPasswordInput').value;
+  const confirm = document.getElementById('confirmPasswordInput').value;
+
+  if(!current || !newPass || !confirm){
+    alert('Please fill all fields');
+    return;
+  }
+  if(newPass !== confirm){
+    alert('New password and confirmation do not match');
+    return;
+  }
+  if(newPass.length < 4){
+    alert('Password should be at least 4 characters');
+    return;
+  }
+
+  // Verify current password first
+  let storedPassword = null;
+  try{
+    const { data } = await supabase.from('app_settings').select('value').eq('key', 'admin_password').maybeSingle();
+    storedPassword = data ? data.value : null;
+  }catch(e){ console.error(e); }
+  const correctPassword = storedPassword || FALLBACK_ADMIN_PASSWORD;
+
+  if(current !== correctPassword){
+    alert('Current password is incorrect');
+    return;
+  }
+
+  const { error } = await supabase.from('app_settings').upsert({
+    key: 'admin_password',
+    value: newPass
+  }, { onConflict: 'key' });
+
+  if(error){ alert('Error saving new password: ' + error.message); return; }
+
+  alert('Password updated! Use the new password next time you log in.');
+  document.getElementById('currentPasswordInput').value = '';
+  document.getElementById('newPasswordInput').value = '';
+  document.getElementById('confirmPasswordInput').value = '';
+}
+
+async function updateEntryStatus(id, status){
+  const { error } = await supabase.from('entries').update({ status }).eq('id', id);
+  if(error){ alert('Error: ' + error.message); return; }
+  loadAll();
+}
+
+async function markWinner(id, amount){
+  if(!confirm('Mark this entry as the WINNER for Rs ' + amount + ' draw?')) return;
+
+  // Unmark any previous winner for this draw amount
+  await supabase.from('entries').update({ is_winner: false }).eq('draw_amount', amount).eq('is_winner', true);
+
+  const { error } = await supabase.from('entries').update({ is_winner: true }).eq('id', id);
+  if(error){ alert('Error: ' + error.message); return; }
+
+  await supabase.from('draws').update({ status: 'completed' }).eq('amount', amount);
+
+  alert("Winner marked! Don't forget to post the announcement on your WhatsApp channel.");
+  loadAll();
+}
+</script>
+</body>
+</html>
